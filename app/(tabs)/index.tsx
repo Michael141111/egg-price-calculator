@@ -27,6 +27,7 @@ export default function HomeScreen() {
     settings,
     selectEgg,
     addDigit,
+    clearField,
     clearAll,
     setActiveField,
     isLoading,
@@ -267,7 +268,7 @@ export default function HomeScreen() {
               <Text className="text-xl font-bold text-foreground text-center">0</Text>
             </Pressable>
             <Pressable
-              onPress={clearAll}
+              onPress={clearField}
               style={({ pressed }) => [
                 {
                   flex: 1,

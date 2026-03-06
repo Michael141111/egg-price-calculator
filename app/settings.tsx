@@ -99,6 +99,9 @@ export default function SettingsScreen() {
                 white: Math.max(0, parseInt(whitePrice, 10) || 0),
                 local: Math.max(0, parseInt(localPrice, 10) || 0),
               };
+              // First, save the prices to current prices
+              await updatePrices(newPrices);
+              // Then, save them as defaults
               await saveCurrentAsDefaults();
               alert('تم حفظ الأسعار الحالية كأسعار افتراضية بنجاح');
             } catch (error) {

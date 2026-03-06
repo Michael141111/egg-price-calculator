@@ -89,3 +89,8 @@
 - [x] Store custom default prices separately from current prices
 - [x] Auto-focus on egg count field when product card is selected
 - [x] Enable keypad input immediately after product selection
+
+## Bug Fixes
+- [x] Fix: Save current prices before saving as defaults
+- [x] Fix: AC button should only clear focused field, not all fields
+- [x] Fix: Restore focus after AC clears the field

@@ -60,6 +60,7 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       return state;
 
     case 'CLEAR_FIELD':
+      // Only clear the focused field, keep focus on it
       if (state.activeField === 'eggCount') {
         return { ...state, eggCount: '' };
       } else if (state.activeField === 'amountPaid') {
