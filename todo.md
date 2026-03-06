@@ -77,3 +77,9 @@
 - [ ] Create checkpoint
 - [x] Verify all features working
 - [ ] Prepare for publication
+
+## Enhancement: Improved Default Values Management
+- [x] Add separate "Set as Default" button for each price field
+- [x] Show current default values clearly in settings
+- [x] Add confirmation dialog when restoring defaults
+- [x] Display visual indicator for fields that differ from defaults
