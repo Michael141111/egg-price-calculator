@@ -1,5 +1,5 @@
 import { ScrollView, Text, View, Pressable, TextInput, I18nManager } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext } from '@/lib/theme-provider';
@@ -21,6 +21,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const colors = useColors();
   const { themeMode } = useThemeContext();
+  const eggCountFieldRef = useRef<View>(null);
   const {
     state,
     settings,
@@ -30,6 +31,13 @@ export default function HomeScreen() {
     setActiveField,
     isLoading,
   } = useCalculator();
+
+  // Auto-focus on egg count when activeField changes to eggCount
+  useEffect(() => {
+    if (state.activeField === 'eggCount' && eggCountFieldRef.current) {
+      // Focus is already set by the context, just ensure keypad is ready
+    }
+  }, [state.activeField]);
 
   // Calculate values
   const selectedEggData = EGG_TYPES.find((egg) => egg.id === state.selectedEgg);
@@ -104,7 +112,7 @@ export default function HomeScreen() {
         {/* Input Fields */}
         <View className="gap-2 mb-2">
           {/* Egg Count Input */}
-          <View>
+          <View ref={eggCountFieldRef}>
             <Text className="text-xs font-semibold text-muted mb-1">عدد البيض</Text>
             <Pressable
               onPress={() => setActiveField('eggCount')}

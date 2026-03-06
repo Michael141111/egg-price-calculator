@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { CalculatorState, Prices, AppSettings } from './types';
-import { loadSettings, savePrices, saveCurrency } from './storage';
+import { loadSettings, savePrices, saveCurrency, loadCustomDefaults, saveCustomDefaults } from './storage';
 
 interface CalculatorContextType {
   state: CalculatorState;
   settings: AppSettings;
+  customDefaults: Prices;
   selectEgg: (eggType: 'red' | 'white' | 'local') => void;
   addDigit: (digit: string) => void;
   clearField: () => void;
@@ -13,6 +14,7 @@ interface CalculatorContextType {
   updatePrices: (prices: Prices) => Promise<void>;
   updateCurrency: (currency: string) => Promise<void>;
   resetToDefaults: () => Promise<void>;
+  saveCurrentAsDefaults: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -91,14 +93,23 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     currencyName: 'جنيه مصري',
     themeMode: 'system',
   });
+  const [customDefaults, setCustomDefaults] = useState<Prices>({
+    red: 90,
+    white: 99,
+    local: 150,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings on mount
+  // Load settings and custom defaults on mount
   useEffect(() => {
     const initSettings = async () => {
       try {
-        const loadedSettings = await loadSettings();
+        const [loadedSettings, loadedDefaults] = await Promise.all([
+          loadSettings(),
+          loadCustomDefaults(),
+        ]);
         setSettings(loadedSettings);
+        setCustomDefaults(loadedDefaults);
       } catch (error) {
         console.error('Error loading settings:', error);
       } finally {
@@ -111,6 +122,8 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
 
   const selectEgg = (eggType: 'red' | 'white' | 'local') => {
     dispatch({ type: 'SELECT_EGG', payload: eggType });
+    // Auto-focus on egg count field
+    dispatch({ type: 'SET_ACTIVE_FIELD', payload: 'eggCount' });
   };
 
   const addDigit = (digit: string) => {
@@ -146,13 +159,18 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
   };
 
   const resetToDefaults = async () => {
-    const defaultPrices = { red: 90, white: 99, local: 150 };
-    await updatePrices(defaultPrices);
+    await updatePrices(customDefaults);
+  };
+
+  const saveCurrentAsDefaults = async () => {
+    await saveCustomDefaults(settings.prices);
+    setCustomDefaults(settings.prices);
   };
 
   const value: CalculatorContextType = {
     state,
     settings,
+    customDefaults,
     selectEgg,
     addDigit,
     clearField,
@@ -161,6 +179,7 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     updatePrices,
     updateCurrency,
     resetToDefaults,
+    saveCurrentAsDefaults,
     isLoading,
   };
 

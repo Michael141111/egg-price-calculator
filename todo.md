@@ -83,3 +83,9 @@
 - [x] Show current default values clearly in settings
 - [x] Add confirmation dialog when restoring defaults
 - [x] Display visual indicator for fields that differ from defaults
+
+## New Feature Requests
+- [x] Add "Save Current Prices as Defaults" button in settings
+- [x] Store custom default prices separately from current prices
+- [x] Auto-focus on egg count field when product card is selected
+- [x] Enable keypad input immediately after product selection
