@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, Pressable, TextInput, I18nManager } from 'react-native';
+import { Text, View, Pressable, I18nManager, StyleSheet } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
@@ -36,7 +36,7 @@ export default function HomeScreen() {
   // Auto-focus on egg count when activeField changes to eggCount
   useEffect(() => {
     if (state.activeField === 'eggCount' && eggCountFieldRef.current) {
-      // Focus is already set by the context, just ensure keypad is ready
+      // Focus is already set by the context
     }
   }, [state.activeField]);
 
@@ -60,48 +60,47 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScreenContainer className="flex-1 px-3 py-2" edges={['top', 'left', 'right']}>
-      <View className="flex-1 gap-2">
-        {/* Header */}
-        <View className="flex-row items-center justify-between mb-1">
+    <ScreenContainer className="flex-1 px-2" edges={['top', 'bottom', 'left', 'right']}>
+      <View style={styles.container}>
+        {/* Header - fixed height */}
+        <View style={styles.header}>
           <Pressable
             onPress={() => router.push('/settings')}
-            className="p-2"
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+            style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
           >
-            <Text className="text-2xl">⚙️</Text>
+            <Text style={styles.settingsIcon}>⚙️</Text>
           </Pressable>
-          <Text className="text-xl font-bold text-foreground">آلة أسعار البيض</Text>
-          <View className="w-8" />
+          <Text className="text-base font-bold text-foreground">آلة أسعار البيض</Text>
+          <View style={{ width: 28 }} />
         </View>
 
         {/* Product Selection Cards */}
-        <View className="flex-row gap-2 justify-center mb-2">
+        <View style={styles.cardsRow}>
           {EGG_TYPES.map((egg) => (
             <Pressable
               key={egg.id}
               onPress={() => selectEgg(egg.id as 'red' | 'white' | 'local')}
               style={({ pressed }) => [
+                styles.card,
                 {
-                  flex: 1,
-                  borderRadius: 8,
-                  borderWidth: state.selectedEgg === egg.id ? 3 : 1,
+                  borderWidth: state.selectedEgg === egg.id ? 2 : 1,
                   borderColor: state.selectedEgg === egg.id ? egg.color : colors.border,
                   backgroundColor: state.selectedEgg === egg.id ? colors.surface : colors.background,
-                  padding: 8,
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
             >
-              <View className="items-center gap-1">
+              <View style={styles.cardContent}>
                 <Image
                   source={egg.image}
-                  style={{ width: 40, height: 50 }}
+                  style={styles.eggImage}
                   contentFit="contain"
                 />
                 <Text
-                  className="text-xs font-semibold text-foreground text-center"
-                  numberOfLines={2}
+                  className="text-foreground text-center font-semibold"
+                  style={styles.cardLabel}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
                 >
                   {egg.label}
                 </Text>
@@ -110,196 +109,335 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Input Fields */}
-        <View className="gap-2 mb-2">
+        {/* Input Fields - two fields side by side */}
+        <View style={styles.inputsRow}>
           {/* Egg Count Input */}
-          <View ref={eggCountFieldRef}>
-            <Text className="text-xs font-semibold text-muted mb-1">عدد البيض</Text>
+          <View style={styles.inputWrapper} ref={eggCountFieldRef}>
+            <Text
+              className="text-muted font-semibold"
+              style={styles.inputLabel}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              عدد البيض
+            </Text>
             <Pressable
               onPress={() => setActiveField('eggCount')}
               style={({ pressed }) => [
+                styles.inputField,
                 {
-                  borderWidth: 2,
-                  borderColor:
-                    state.activeField === 'eggCount' ? colors.primary : colors.border,
-                  borderRadius: 6,
-                  paddingHorizontal: 12,
-                  paddingVertical: 10,
+                  borderColor: state.activeField === 'eggCount' ? colors.primary : colors.border,
                   backgroundColor: colors.surface,
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
             >
-              <Text className="text-lg font-bold text-foreground text-right">
+              <Text
+                className="font-bold text-foreground"
+                style={styles.inputText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 {state.eggCount || '0'}
               </Text>
             </Pressable>
           </View>
 
           {/* Amount Paid Input */}
-          <View>
-            <Text className="text-xs font-semibold text-muted mb-1">المبلغ المدفوع</Text>
+          <View style={styles.inputWrapper}>
+            <Text
+              className="text-muted font-semibold"
+              style={styles.inputLabel}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              المبلغ المدفوع
+            </Text>
             <Pressable
               onPress={() => setActiveField('amountPaid')}
               style={({ pressed }) => [
+                styles.inputField,
                 {
-                  borderWidth: 2,
-                  borderColor:
-                    state.activeField === 'amountPaid' ? colors.primary : colors.border,
-                  borderRadius: 6,
-                  paddingHorizontal: 12,
-                  paddingVertical: 10,
+                  borderColor: state.activeField === 'amountPaid' ? colors.primary : colors.border,
                   backgroundColor: colors.surface,
                   opacity: pressed ? 0.8 : 1,
                 },
               ]}
             >
-              <Text className="text-lg font-bold text-foreground text-right">
+              <Text
+                className="font-bold text-foreground"
+                style={styles.inputText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 {state.amountPaid || '0'}
               </Text>
             </Pressable>
           </View>
         </View>
 
-        {/* Results Display */}
-        <View className="gap-1 mb-2 bg-surface rounded-lg p-2">
-          <View className="flex-row justify-between">
-            <Text className="text-sm text-muted">سعر الكرتونة</Text>
-            <Text className="text-sm font-semibold text-foreground">
+        {/* Price Info Row */}
+        <View style={styles.priceInfoRow}>
+          <View style={styles.priceItem}>
+            <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر الكرتونة</Text>
+            <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
               {cartonPrice} {settings.currencyName}
             </Text>
           </View>
-          <View className="flex-row justify-between">
-            <Text className="text-sm text-muted">سعر البيضة</Text>
-            <Text className="text-sm font-semibold text-foreground">
+          <View style={styles.priceDivider} />
+          <View style={styles.priceItem}>
+            <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر البيضة</Text>
+            <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
               {eggPrice.toFixed(2)} {settings.currencyName}
             </Text>
           </View>
-
-          {/* Total - Prominent Display */}
-          <View className="bg-primary rounded-lg p-3 mt-1">
-            <Text className="text-xs text-white text-center mb-1">الإجمالي</Text>
-            <Text className="text-4xl font-bold text-white text-center">
-              {total.toFixed(2)}
-            </Text>
-            <Text className="text-sm text-white text-center mt-1">{settings.currencyName}</Text>
-          </View>
         </View>
 
-        {/* Keypad */}
-        <View className="gap-1 mb-2">
+        {/* Total - Prominent Display */}
+        <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
+          <Text style={styles.totalLabel}>الإجمالي</Text>
+          <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+            {total.toFixed(2)}
+          </Text>
+          <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
+        </View>
+
+        {/* Keypad - takes remaining space */}
+        <View style={styles.keypad}>
           {/* Row 1: 7, 8, 9 */}
-          <View className="flex-row gap-1">
+          <View style={styles.keypadRow}>
             {['7', '8', '9'].map((num) => (
               <Pressable
                 key={num}
                 onPress={() => addDigit(num)}
                 style={({ pressed }) => [
-                  {
-                    flex: 1,
-                    backgroundColor: colors.surface,
-                    borderRadius: 6,
-                    paddingVertical: 12,
-                    opacity: pressed ? 0.7 : 1,
-                  },
+                  styles.keypadBtn,
+                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
                 ]}
               >
-                <Text className="text-xl font-bold text-foreground text-center">{num}</Text>
+                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
               </Pressable>
             ))}
           </View>
 
           {/* Row 2: 4, 5, 6 */}
-          <View className="flex-row gap-1">
+          <View style={styles.keypadRow}>
             {['4', '5', '6'].map((num) => (
               <Pressable
                 key={num}
                 onPress={() => addDigit(num)}
                 style={({ pressed }) => [
-                  {
-                    flex: 1,
-                    backgroundColor: colors.surface,
-                    borderRadius: 6,
-                    paddingVertical: 12,
-                    opacity: pressed ? 0.7 : 1,
-                  },
+                  styles.keypadBtn,
+                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
                 ]}
               >
-                <Text className="text-xl font-bold text-foreground text-center">{num}</Text>
+                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
               </Pressable>
             ))}
           </View>
 
           {/* Row 3: 1, 2, 3 */}
-          <View className="flex-row gap-1">
+          <View style={styles.keypadRow}>
             {['1', '2', '3'].map((num) => (
               <Pressable
                 key={num}
                 onPress={() => addDigit(num)}
                 style={({ pressed }) => [
-                  {
-                    flex: 1,
-                    backgroundColor: colors.surface,
-                    borderRadius: 6,
-                    paddingVertical: 12,
-                    opacity: pressed ? 0.7 : 1,
-                  },
+                  styles.keypadBtn,
+                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
                 ]}
               >
-                <Text className="text-xl font-bold text-foreground text-center">{num}</Text>
+                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
               </Pressable>
             ))}
           </View>
 
           {/* Row 4: 0, AC */}
-          <View className="flex-row gap-1">
+          <View style={styles.keypadRow}>
             <Pressable
               onPress={() => addDigit('0')}
               style={({ pressed }) => [
-                {
-                  flex: 1,
-                  backgroundColor: colors.surface,
-                  borderRadius: 6,
-                  paddingVertical: 12,
-                  opacity: pressed ? 0.7 : 1,
-                },
+                styles.keypadBtn,
+                { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <Text className="text-xl font-bold text-foreground text-center">0</Text>
+              <Text className="font-bold text-foreground" style={styles.keypadText}>0</Text>
             </Pressable>
             <Pressable
               onPress={clearField}
               style={({ pressed }) => [
-                {
-                  flex: 1,
-                  backgroundColor: '#EF4444',
-                  borderRadius: 6,
-                  paddingVertical: 12,
-                  opacity: pressed ? 0.7 : 1,
-                },
+                styles.keypadBtn,
+                { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <Text className="text-xl font-bold text-white text-center">AC</Text>
+              <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
             </Pressable>
           </View>
         </View>
 
         {/* Change Display */}
-        <View className="bg-surface rounded-lg p-3">
-          <Text className="text-xs text-muted text-center mb-1">
+        <View style={[styles.changeBox, { backgroundColor: colors.surface }]}>
+          <Text className="text-muted" style={styles.changeLabel}>
             {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
           </Text>
           <Text
-            className={cn(
-              'text-3xl font-bold text-center',
-              change < 0 ? 'text-error' : 'text-success'
-            )}
+            style={[
+              styles.changeValue,
+              { color: change < 0 ? '#EF4444' : '#22C55E' },
+            ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
           >
             {Math.abs(change).toFixed(2)}
           </Text>
-          <Text className="text-sm text-muted text-center mt-1">{settings.currencyName}</Text>
+          <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
         </View>
       </View>
     </ScreenContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    gap: 3,
+  },
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
+  settingsBtn: {
+    padding: 4,
+  },
+  settingsIcon: {
+    fontSize: 18,
+  },
+  // Product Cards
+  cardsRow: {
+    flexDirection: 'row',
+    gap: 4,
+    justifyContent: 'center',
+  },
+  card: {
+    flex: 1,
+    borderRadius: 6,
+    padding: 4,
+  },
+  cardContent: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  eggImage: {
+    width: 28,
+    height: 32,
+  },
+  cardLabel: {
+    fontSize: 11,
+  },
+  // Input Fields
+  inputsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  inputWrapper: {
+    flex: 1,
+  },
+  inputLabel: {
+    fontSize: 11,
+    marginBottom: 2,
+    textAlign: 'right',
+  },
+  inputField: {
+    borderWidth: 2,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+  },
+  inputText: {
+    fontSize: 16,
+    textAlign: 'right',
+  },
+  // Price Info
+  priceInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: 2,
+  },
+  priceItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: 10,
+  },
+  priceValue: {
+    fontSize: 12,
+  },
+  priceDivider: {
+    width: 1,
+    height: '80%',
+    backgroundColor: '#ccc',
+  },
+  // Total
+  totalBox: {
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  totalLabel: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginBottom: 1,
+  },
+  totalValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  totalCurrency: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginTop: 1,
+  },
+  // Keypad
+  keypad: {
+    flex: 1,
+    gap: 3,
+  },
+  keypadRow: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 3,
+  },
+  keypadBtn: {
+    flex: 1,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  keypadText: {
+    fontSize: 18,
+  },
+  // Change Display
+  changeBox: {
+    borderRadius: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+  },
+  changeLabel: {
+    fontSize: 10,
+  },
+  changeValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  changeCurrency: {
+    fontSize: 10,
+  },
+});

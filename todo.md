@@ -94,3 +94,9 @@
 - [x] Fix: Save current prices before saving as defaults
 - [x] Fix: AC button should only clear focused field, not all fields
 - [x] Fix: Restore focus after AC clears the field
+
+## Responsive Layout Issues
+- [x] Fix: Home screen layout must fit all screen sizes without cutoff
+- [x] Fix: Support different font size settings (accessibility)
+- [x] Fix: Adapt to different screen aspect ratios and DPI settings
+- [x] Fix: Use flexible layout that scales with content
