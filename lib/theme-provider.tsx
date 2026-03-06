@@ -1,19 +1,43 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Appearance, View, useColorScheme as useSystemColorScheme } from "react-native";
 import { colorScheme as nativewindColorScheme, vars } from "nativewind";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { SchemeColors, type ColorScheme } from "@/constants/theme";
 
+export type ThemeMode = "light" | "dark" | "system";
+
 type ThemeContextValue = {
   colorScheme: ColorScheme;
+  themeMode: ThemeMode;
   setColorScheme: (scheme: ColorScheme) => void;
+  setThemeMode: (mode: ThemeMode) => Promise<void>;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+const THEME_STORAGE_KEY = "@egg_calculator_theme";
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useSystemColorScheme() ?? "light";
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(systemScheme);
+  const [themeMode, setThemeModeState] = useState<ThemeMode>("system");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const loadThemeMode = async () => {
+      try {
+        const savedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        if (savedMode === "light" || savedMode === "dark" || savedMode === "system") {
+          setThemeModeState(savedMode);
+        }
+      } catch (error) {
+        console.error("Error loading theme mode:", error);
+      }
+      setIsInitialized(true);
+    };
+    loadThemeMode();
+  }, []);
 
   const applyScheme = useCallback((scheme: ColorScheme) => {
     nativewindColorScheme.set(scheme);
@@ -34,9 +58,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyScheme(scheme);
   }, [applyScheme]);
 
+  const setThemeMode = useCallback(
+    async (mode: ThemeMode) => {
+      setThemeModeState(mode);
+      try {
+        await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      } catch (error) {
+        console.error("Error saving theme mode:", error);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
-    applyScheme(colorScheme);
-  }, [applyScheme, colorScheme]);
+    let effectiveScheme: ColorScheme = colorScheme;
+    if (themeMode === "light") {
+      effectiveScheme = "light";
+    } else if (themeMode === "dark") {
+      effectiveScheme = "dark";
+    } else {
+      effectiveScheme = systemScheme;
+    }
+    setColorSchemeState(effectiveScheme);
+    applyScheme(effectiveScheme);
+  }, [themeMode, systemScheme, applyScheme]);
 
   const themeVariables = useMemo(
     () =>
@@ -57,11 +102,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       colorScheme,
+      themeMode,
       setColorScheme,
+      setThemeMode,
     }),
-    [colorScheme, setColorScheme],
+    [colorScheme, themeMode, setColorScheme, setThemeMode],
   );
-  console.log(value, themeVariables)
+
+  if (!isInitialized) {
+    return <View style={{ flex: 1 }} />;
+  }
 
   return (
     <ThemeContext.Provider value={value}>
