@@ -1,4 +1,4 @@
-import { Text, View, Pressable, I18nManager, StyleSheet } from 'react-native';
+import { Text, View, Pressable, StyleSheet, I18nManager } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
@@ -30,6 +30,7 @@ export default function HomeScreen() {
     clearField,
     clearAll,
     setActiveField,
+    toggleCalculationMode,
     isLoading,
   } = useCalculator();
 
@@ -46,10 +47,26 @@ export default function HomeScreen() {
     ? settings.prices[state.selectedEgg as keyof typeof settings.prices]
     : 0;
   const eggPrice = cartonPrice > 0 ? cartonPrice / 30 : 0;
-  const eggCount = parseInt(state.eggCount, 10) || 0;
-  const total = eggCount * eggPrice;
-  const amountPaid = parseFloat(state.amountPaid) || 0;
-  const change = amountPaid - total;
+
+  let eggCount = 0;
+  let total = 0;
+  let amountPaid = 0;
+  let change = 0;
+  let eggsReceived = 0;
+  let remainder = 0;
+
+  if (state.calculationMode === 'byCount') {
+    // Mode 1: Input egg count, calculate total and change
+    eggCount = parseInt(state.eggCount, 10) || 0;
+    total = eggCount * eggPrice;
+    amountPaid = parseFloat(state.amountPaid) || 0;
+    change = amountPaid - total;
+  } else {
+    // Mode 2: Input amount, calculate egg count and remainder
+    const amount = parseFloat(state.amountPaid) || 0;
+    eggsReceived = Math.floor(amount / eggPrice);
+    remainder = amount - (eggsReceived * eggPrice);
+  }
 
   if (isLoading) {
     return (
@@ -71,7 +88,20 @@ export default function HomeScreen() {
             <Text style={styles.settingsIcon}>⚙️</Text>
           </Pressable>
           <Text className="text-base font-bold text-foreground">آلة أسعار البيض</Text>
-          <View style={{ width: 28 }} />
+          <Pressable
+            onPress={toggleCalculationMode}
+            style={({ pressed }) => [
+              styles.modeToggleBtn,
+              {
+                backgroundColor: state.calculationMode === 'byAmount' ? colors.primary : colors.surface,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Text style={styles.modeToggleIcon}>
+              {state.calculationMode === 'byCount' ? '💰' : '🥚'}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Product Selection Cards */}
@@ -111,7 +141,7 @@ export default function HomeScreen() {
 
         {/* Input Fields - two fields side by side */}
         <View style={styles.inputsRow}>
-          {/* Egg Count Input */}
+          {/* First Input Field */}
           <View style={styles.inputWrapper} ref={eggCountFieldRef}>
             <Text
               className="text-muted font-semibold"
@@ -119,14 +149,18 @@ export default function HomeScreen() {
               numberOfLines={1}
               adjustsFontSizeToFit
             >
-              عدد البيض
+              {state.calculationMode === 'byCount' ? 'عدد البيض' : 'المبلغ المطلوب'}
             </Text>
             <Pressable
-              onPress={() => setActiveField('eggCount')}
+              onPress={() => setActiveField(state.calculationMode === 'byCount' ? 'eggCount' : 'amountPaid')}
               style={({ pressed }) => [
                 styles.inputField,
                 {
-                  borderColor: state.activeField === 'eggCount' ? colors.primary : colors.border,
+                  borderColor: 
+                    (state.calculationMode === 'byCount' && state.activeField === 'eggCount') ||
+                    (state.calculationMode === 'byAmount' && state.activeField === 'amountPaid')
+                      ? colors.primary 
+                      : colors.border,
                   backgroundColor: colors.surface,
                   opacity: pressed ? 0.8 : 1,
                 },
@@ -138,42 +172,44 @@ export default function HomeScreen() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                {state.eggCount || '0'}
+                {state.calculationMode === 'byCount' ? (state.eggCount || '0') : (state.amountPaid || '0')}
               </Text>
             </Pressable>
           </View>
 
-          {/* Amount Paid Input */}
-          <View style={styles.inputWrapper}>
-            <Text
-              className="text-muted font-semibold"
-              style={styles.inputLabel}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-            >
-              المبلغ المدفوع
-            </Text>
-            <Pressable
-              onPress={() => setActiveField('amountPaid')}
-              style={({ pressed }) => [
-                styles.inputField,
-                {
-                  borderColor: state.activeField === 'amountPaid' ? colors.primary : colors.border,
-                  backgroundColor: colors.surface,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
+          {/* Second Input Field */}
+          {state.calculationMode === 'byCount' && (
+            <View style={styles.inputWrapper}>
               <Text
-                className="font-bold text-foreground"
-                style={styles.inputText}
+                className="text-muted font-semibold"
+                style={styles.inputLabel}
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                {state.amountPaid || '0'}
+                المبلغ المدفوع
               </Text>
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={() => setActiveField('amountPaid')}
+                style={({ pressed }) => [
+                  styles.inputField,
+                  {
+                    borderColor: state.activeField === 'amountPaid' ? colors.primary : colors.border,
+                    backgroundColor: colors.surface,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+              >
+                <Text
+                  className="font-bold text-foreground"
+                  style={styles.inputText}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {state.amountPaid || '0'}
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
         {/* Price Info Row */}
@@ -193,14 +229,27 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Total - Prominent Display */}
-        <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
-          <Text style={styles.totalLabel}>الإجمالي</Text>
-          <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
-            {total.toFixed(2)}
-          </Text>
-          <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
-        </View>
+        {/* Total - Prominent Display (Mode 1 only) */}
+        {state.calculationMode === 'byCount' && (
+          <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
+            <Text style={styles.totalLabel}>الإجمالي</Text>
+            <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+              {total.toFixed(2)}
+            </Text>
+            <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
+          </View>
+        )}
+
+        {/* Eggs Received Display (Mode 2 only) */}
+        {state.calculationMode === 'byAmount' && (
+          <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
+            <Text style={styles.totalLabel}>عدد البيضات</Text>
+            <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+              {eggsReceived}
+            </Text>
+            <Text style={styles.totalCurrency}>بيضة</Text>
+          </View>
+        )}
 
         {/* Keypad - takes remaining space */}
         <View style={styles.keypad}>
@@ -275,22 +324,43 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Change Display */}
+        {/* Change Display (Mode 1) or Remainder Display (Mode 2) */}
         <View style={[styles.changeBox, { backgroundColor: colors.surface }]}>
-          <Text className="text-muted" style={styles.changeLabel}>
-            {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
-          </Text>
-          <Text
-            style={[
-              styles.changeValue,
-              { color: change < 0 ? '#EF4444' : '#22C55E' },
-            ]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {Math.abs(change).toFixed(2)}
-          </Text>
-          <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+          {state.calculationMode === 'byCount' ? (
+            <>
+              <Text className="text-muted" style={styles.changeLabel}>
+                {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
+              </Text>
+              <Text
+                style={[
+                  styles.changeValue,
+                  { color: change < 0 ? '#EF4444' : '#22C55E' },
+                ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {Math.abs(change).toFixed(2)}
+              </Text>
+              <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+            </>
+          ) : (
+            <>
+              <Text className="text-muted" style={styles.changeLabel}>
+                المتبقي للعميل
+              </Text>
+              <Text
+                style={[
+                  styles.changeValue,
+                  { color: '#22C55E' },
+                ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {remainder.toFixed(2)}
+              </Text>
+              <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+            </>
+          )}
         </View>
       </View>
     </ScreenContainer>
@@ -314,6 +384,13 @@ const styles = StyleSheet.create({
   },
   settingsIcon: {
     fontSize: 18,
+  },
+  modeToggleBtn: {
+    padding: 6,
+    borderRadius: 6,
+  },
+  modeToggleIcon: {
+    fontSize: 16,
   },
   // Product Cards
   cardsRow: {

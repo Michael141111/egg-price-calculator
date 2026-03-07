@@ -34,6 +34,7 @@ export interface CalculatorState {
   eggCount: string;
   amountPaid: string;
   activeField: 'eggCount' | 'amountPaid' | null;
+  calculationMode: 'byCount' | 'byAmount';
 }
 
 /**

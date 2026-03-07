@@ -100,3 +100,11 @@
 - [x] Fix: Support different font size settings (accessibility)
 - [x] Fix: Adapt to different screen aspect ratios and DPI settings
 - [x] Fix: Use flexible layout that scales with content
+
+## New Feature: Calculate Eggs from Amount
+- [x] Add toggle/checkbox to switch between two calculation modes
+- [x] Mode 1 (default): Input egg count, calculate total and change
+- [x] Mode 2 (new): Input amount customer wants to spend, calculate egg count and remainder
+- [x] Update calculator context to handle both modes
+- [x] Update home screen UI to show/hide fields based on mode
+- [x] Test calculations for accuracy
