@@ -10,6 +10,7 @@ interface CalculatorContextType {
   clearField: () => void;
   clearAll: () => void;
   setActiveField: (field: 'eggCount' | 'amountPaid' | null) => void;
+  toggleCalculationMode: () => void;
   updatePrices: (prices: Prices) => Promise<void>;
   updateCurrency: (currency: string) => Promise<void>;
   resetToDefaults: () => Promise<void>;
@@ -23,6 +24,7 @@ const initialState: CalculatorState = {
   eggCount: '',
   amountPaid: '',
   activeField: null,
+  calculationMode: 'byCount',
 };
 
 type CalculatorAction =
@@ -30,7 +32,8 @@ type CalculatorAction =
   | { type: 'ADD_DIGIT'; payload: string }
   | { type: 'CLEAR_FIELD' }
   | { type: 'CLEAR_ALL' }
-  | { type: 'SET_ACTIVE_FIELD'; payload: 'eggCount' | 'amountPaid' | null };
+  | { type: 'SET_ACTIVE_FIELD'; payload: 'eggCount' | 'amountPaid' | null }
+  | { type: 'TOGGLE_CALCULATION_MODE' };
 
 function calculatorReducer(state: CalculatorState, action: CalculatorAction): CalculatorState {
   switch (action.type) {
@@ -77,6 +80,15 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       return {
         ...state,
         activeField: action.payload,
+      };
+
+    case 'TOGGLE_CALCULATION_MODE':
+      return {
+        ...state,
+        calculationMode: state.calculationMode === 'byCount' ? 'byAmount' : 'byCount',
+        eggCount: '',
+        amountPaid: '',
+        activeField: null,
       };
 
     default:
@@ -129,6 +141,10 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     dispatch({ type: 'SET_ACTIVE_FIELD', payload: field });
   };
 
+  const toggleCalculationMode = () => {
+    dispatch({ type: 'TOGGLE_CALCULATION_MODE' });
+  };
+
   const updatePrices = async (prices: Prices) => {
     setSettings((prev) => ({
       ...prev,
@@ -158,6 +174,7 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     clearField,
     clearAll,
     setActiveField,
+    toggleCalculationMode,
     updatePrices,
     updateCurrency,
     resetToDefaults,

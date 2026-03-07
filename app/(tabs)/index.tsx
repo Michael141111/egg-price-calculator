@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, Pressable, TextInput, I18nManager } from 'react-native';
+import { Text, View, Pressable, I18nManager } from 'react-native';
 import { useEffect } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
@@ -26,8 +26,10 @@ export default function HomeScreen() {
     settings,
     selectEgg,
     addDigit,
+    clearField,
     clearAll,
     setActiveField,
+    toggleCalculationMode,
     isLoading,
   } = useCalculator();
 
@@ -37,10 +39,17 @@ export default function HomeScreen() {
     ? settings.prices[state.selectedEgg as keyof typeof settings.prices]
     : 0;
   const eggPrice = cartonPrice > 0 ? cartonPrice / 30 : 0;
+
+  // Mode 1: Input egg count, calculate total
   const eggCount = parseInt(state.eggCount, 10) || 0;
   const total = eggCount * eggPrice;
   const amountPaid = parseFloat(state.amountPaid) || 0;
   const change = amountPaid - total;
+
+  // Mode 2: Input amount, calculate egg count
+  const requestedAmount = parseFloat(state.amountPaid) || 0;
+  const eggsFromAmount = eggPrice > 0 ? Math.floor(requestedAmount / eggPrice) : 0;
+  const remainderFromAmount = eggPrice > 0 ? requestedAmount - (eggsFromAmount * eggPrice) : 0;
 
   if (isLoading) {
     return (
@@ -63,7 +72,23 @@ export default function HomeScreen() {
             <Text className="text-2xl">⚙️</Text>
           </Pressable>
           <Text className="text-xl font-bold text-foreground">آلة أسعار البيض</Text>
-          <View className="w-8" />
+          <Pressable
+            onPress={toggleCalculationMode}
+            className="p-2 rounded-lg"
+            style={({ pressed }) => [
+              {
+                backgroundColor: state.calculationMode === 'byAmount' ? colors.primary : colors.surface,
+                opacity: pressed ? 0.7 : 1,
+              },
+            ]}
+          >
+            <Text
+              className="text-sm font-bold"
+              style={{ color: state.calculationMode === 'byAmount' ? '#FFFFFF' : colors.foreground }}
+            >
+              {state.calculationMode === 'byCount' ? '💰' : '🥚'}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Product Selection Cards */}
@@ -103,33 +128,37 @@ export default function HomeScreen() {
 
         {/* Input Fields */}
         <View className="gap-2 mb-2">
-          {/* Egg Count Input */}
-          <View>
-            <Text className="text-xs font-semibold text-muted mb-1">عدد البيض</Text>
-            <Pressable
-              onPress={() => setActiveField('eggCount')}
-              style={({ pressed }) => [
-                {
-                  borderWidth: 2,
-                  borderColor:
-                    state.activeField === 'eggCount' ? colors.primary : colors.border,
-                  borderRadius: 6,
-                  paddingHorizontal: 12,
-                  paddingVertical: 10,
-                  backgroundColor: colors.surface,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <Text className="text-lg font-bold text-foreground text-right">
-                {state.eggCount || '0'}
-              </Text>
-            </Pressable>
-          </View>
+          {/* Egg Count Input - Mode 1 */}
+          {state.calculationMode === 'byCount' && (
+            <View>
+              <Text className="text-xs font-semibold text-muted mb-1">عدد البيض</Text>
+              <Pressable
+                onPress={() => setActiveField('eggCount')}
+                style={({ pressed }) => [
+                  {
+                    borderWidth: 2,
+                    borderColor:
+                      state.activeField === 'eggCount' ? colors.primary : colors.border,
+                    borderRadius: 6,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    backgroundColor: colors.surface,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+              >
+                <Text className="text-lg font-bold text-foreground text-right">
+                  {state.eggCount || '0'}
+                </Text>
+              </Pressable>
+            </View>
+          )}
 
           {/* Amount Paid Input */}
           <View>
-            <Text className="text-xs font-semibold text-muted mb-1">المبلغ المدفوع</Text>
+            <Text className="text-xs font-semibold text-muted mb-1">
+              {state.calculationMode === 'byCount' ? 'المبلغ المدفوع' : 'المبلغ المطلوب'}
+            </Text>
             <Pressable
               onPress={() => setActiveField('amountPaid')}
               style={({ pressed }) => [
@@ -150,6 +179,27 @@ export default function HomeScreen() {
               </Text>
             </Pressable>
           </View>
+
+          {/* Eggs from Amount Display - Mode 2 */}
+          {state.calculationMode === 'byAmount' && (
+            <View>
+              <Text className="text-xs font-semibold text-muted mb-1">عدد البيضات المستلمة</Text>
+              <View
+                style={{
+                  borderWidth: 2,
+                  borderColor: colors.border,
+                  borderRadius: 6,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  backgroundColor: colors.surface,
+                }}
+              >
+                <Text className="text-lg font-bold text-foreground text-right">
+                  {eggsFromAmount}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Results Display */}
@@ -169,9 +219,11 @@ export default function HomeScreen() {
 
           {/* Total - Prominent Display */}
           <View className="bg-primary rounded-lg p-3 mt-1">
-            <Text className="text-xs text-white text-center mb-1">الإجمالي</Text>
+            <Text className="text-xs text-white text-center mb-1">
+              {state.calculationMode === 'byCount' ? 'الإجمالي' : 'السعر الكلي'}
+            </Text>
             <Text className="text-4xl font-bold text-white text-center">
-              {total.toFixed(2)}
+              {state.calculationMode === 'byCount' ? total.toFixed(2) : (eggsFromAmount * eggPrice).toFixed(2)}
             </Text>
             <Text className="text-sm text-white text-center mt-1">{settings.currencyName}</Text>
           </View>
@@ -259,7 +311,7 @@ export default function HomeScreen() {
               <Text className="text-xl font-bold text-foreground text-center">0</Text>
             </Pressable>
             <Pressable
-              onPress={clearAll}
+              onPress={clearField}
               style={({ pressed }) => [
                 {
                   flex: 1,
@@ -277,17 +329,28 @@ export default function HomeScreen() {
 
         {/* Change Display */}
         <View className="bg-surface rounded-lg p-3">
-          <Text className="text-xs text-muted text-center mb-1">
-            {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
-          </Text>
-          <Text
-            className={cn(
-              'text-3xl font-bold text-center',
-              change < 0 ? 'text-error' : 'text-success'
-            )}
-          >
-            {Math.abs(change).toFixed(2)}
-          </Text>
+          {state.calculationMode === 'byCount' ? (
+            <>
+              <Text className="text-xs text-muted text-center mb-1">
+                {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
+              </Text>
+              <Text
+                className={cn(
+                  'text-3xl font-bold text-center',
+                  change < 0 ? 'text-error' : 'text-success'
+                )}
+              >
+                {Math.abs(change).toFixed(2)}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text className="text-xs text-muted text-center mb-1">الباقي</Text>
+              <Text className="text-3xl font-bold text-center text-success">
+                {remainderFromAmount.toFixed(2)}
+              </Text>
+            </>
+          )}
           <Text className="text-sm text-muted text-center mt-1">{settings.currencyName}</Text>
         </View>
       </View>

@@ -77,3 +77,11 @@
 - [ ] Create checkpoint
 - [x] Verify all features working
 - [ ] Prepare for publication
+
+## New Feature: Calculate Eggs from Amount
+- [x] Add toggle/checkbox to switch between two modes
+- [x] Mode 1 (default): Input egg count, calculate total and change
+- [x] Mode 2 (new): Input amount, calculate egg count and change
+- [x] Update calculator context to handle both modes
+- [x] Update home screen UI to show/hide fields based on mode
+- [x] Test calculations for accuracy
