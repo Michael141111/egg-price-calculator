@@ -27,11 +27,6 @@ export interface AppSettings {
 }
 
 /**
- * Calculation mode: 'byCount' = input egg count, 'byAmount' = input amount to get egg count
- */
-export type CalculationMode = 'byCount' | 'byAmount';
-
-/**
  * Calculator state
  */
 export interface CalculatorState {
@@ -39,7 +34,6 @@ export interface CalculatorState {
   eggCount: string;
   amountPaid: string;
   activeField: 'eggCount' | 'amountPaid' | null;
-  calculationMode: CalculationMode;
 }
 
 /**

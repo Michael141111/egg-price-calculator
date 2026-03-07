@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, Pressable, TextInput, I18nManager } from 'react-native';
+import { ScrollView, Text, View, Pressable, TextInput, I18nManager, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
@@ -15,10 +15,17 @@ const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
   { label: 'تلقائي حسب النظام', value: 'system' },
 ];
 
+// Note: These are just for display. Actual defaults are loaded from customDefaults
+const DEFAULT_PRICES = {
+  red: 90,
+  white: 99,
+  local: 150,
+};
+
 export default function SettingsScreen() {
   const router = useRouter();
   const colors = useColors();
-  const { settings, updatePrices, updateCurrency, resetToDefaults } = useCalculator();
+  const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults } = useCalculator();
   const { themeMode, setThemeMode } = useThemeContext();
 
   const [redPrice, setRedPrice] = useState(String(settings.prices.red));
@@ -27,6 +34,7 @@ export default function SettingsScreen() {
   const [currency, setCurrency] = useState(settings.currencyName);
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(themeMode);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingDefaults, setIsSavingDefaults] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -41,7 +49,6 @@ export default function SettingsScreen() {
       await updateCurrency(currency || 'جنيه مصري');
       await setThemeMode(selectedTheme);
 
-      // Show success feedback
       alert('تم حفظ الإعدادات بنجاح');
       router.back();
     } catch (error) {
@@ -53,11 +60,60 @@ export default function SettingsScreen() {
   };
 
   const handleRestoreDefaults = async () => {
-    setRedPrice('90');
-    setWhitePrice('99');
-    setLocalPrice('150');
-    setCurrency('جنيه مصري');
-    setSelectedTheme('system');
+    Alert.alert(
+      'استعادة القيم الافتراضية',
+      `هل أنت متأكد من رغبتك في استعادة القيم الافتراضية\n\n🔴 البيض الأحمر: ${customDefaults.red} جنيه\n⚪ البيض الأبيض: ${customDefaults.white} جنيه\n🟤 البيض البلدي: ${customDefaults.local} جنيه`,
+      [
+        { text: 'إلغاء', style: 'cancel' },
+        {
+          text: 'استعادة',
+          style: 'destructive',
+          onPress: async () => {
+            setRedPrice(String(customDefaults.red));
+            setWhitePrice(String(customDefaults.white));
+            setLocalPrice(String(customDefaults.local));
+            setCurrency('جنيه مصري');
+            setSelectedTheme('system');
+            await resetToDefaults();
+            alert('تم استعادة القيم الافتراضية بنجاح');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSaveAsDefaults = async () => {
+    Alert.alert(
+      'حفظ كأسعار افتراضية',
+      `هل الأسعار الحالية ستبقى القيم الافتراضية\n\n🔴 البيض الأحمر: ${redPrice} جنيه\n⚪ البيض الأبيض: ${whitePrice} جنيه\n🟤 البيض البلدي: ${localPrice} جنيه`,
+      [
+        { text: 'إلغاء', style: 'cancel' },
+        {
+          text: 'حفظ',
+          style: 'default',
+          onPress: async () => {
+            setIsSavingDefaults(true);
+            try {
+              const newPrices: Prices = {
+                red: Math.max(0, parseInt(redPrice, 10) || 0),
+                white: Math.max(0, parseInt(whitePrice, 10) || 0),
+                local: Math.max(0, parseInt(localPrice, 10) || 0),
+              };
+              // First, save the prices to current prices
+              await updatePrices(newPrices);
+              // Then, save them as defaults
+              await saveCurrentAsDefaults();
+              alert('تم حفظ الأسعار الحالية كأسعار افتراضية بنجاح');
+            } catch (error) {
+              console.error('Error saving defaults:', error);
+              alert('حدث خطأ أثناء حفظ الأسعار');
+            } finally {
+              setIsSavingDefaults(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -82,7 +138,7 @@ export default function SettingsScreen() {
 
             {/* Red Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">سعر كرتونة البيض الأحمر</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">🔴 سعر كرتونة البيض الأحمر</Text>
               <TextInput
                 value={redPrice}
                 onChangeText={setRedPrice}
@@ -105,7 +161,7 @@ export default function SettingsScreen() {
 
             {/* White Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">سعر كرتونة البيض الأبيض</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">⚪ سعر كرتونة البيض الأبيض</Text>
               <TextInput
                 value={whitePrice}
                 onChangeText={setWhitePrice}
@@ -128,7 +184,7 @@ export default function SettingsScreen() {
 
             {/* Local Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">سعر كرتونة البيض البلدي</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">🟤 سعر كرتونة البيض البلدي</Text>
               <TextInput
                 value={localPrice}
                 onChangeText={setLocalPrice}
@@ -228,6 +284,16 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* Default Values Info */}
+          <View className="bg-surface rounded-lg p-3 border border-border">
+            <Text className="text-sm font-bold text-foreground mb-2">📋 القيم الافتراضية الحالية:</Text>
+            <View className="gap-1">
+              <Text className="text-xs text-muted">🔴 البيض الأحمر: {customDefaults.red} جنيه</Text>
+              <Text className="text-xs text-muted">⚪ البيض الأبيض: {customDefaults.white} جنيه</Text>
+              <Text className="text-xs text-muted">🟤 البيض البلدي: {customDefaults.local} جنيه</Text>
+            </View>
+          </View>
+
           {/* Action Buttons */}
           <View className="gap-2 mt-4">
             {/* Save Button */}
@@ -244,7 +310,25 @@ export default function SettingsScreen() {
               ]}
             >
               <Text className="text-base font-bold text-white text-center">
-                {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+                {isSaving ? 'جاري الحفظ...' : '✓ حفظ الإعدادات'}
+              </Text>
+            </Pressable>
+
+            {/* Save as Defaults Button */}
+            <Pressable
+              onPress={handleSaveAsDefaults}
+              disabled={isSavingDefaults}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: '#8B5CF6',
+                  borderRadius: 8,
+                  paddingVertical: 12,
+                  opacity: pressed || isSavingDefaults ? 0.7 : 1,
+                },
+              ]}
+            >
+              <Text className="text-base font-semibold text-white text-center">
+                {isSavingDefaults ? 'جاري الحفظ...' : '📋 حفظ كأسعار افتراضية'}
               </Text>
             </Pressable>
 
@@ -253,17 +337,15 @@ export default function SettingsScreen() {
               onPress={handleRestoreDefaults}
               style={({ pressed }) => [
                 {
-                  backgroundColor: colors.surface,
+                  backgroundColor: '#EF4444',
                   borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: colors.border,
                   paddingVertical: 12,
                   opacity: pressed ? 0.7 : 1,
                 },
               ]}
             >
-              <Text className="text-base font-semibold text-foreground text-center">
-                استعادة القيم الافتراضية
+              <Text className="text-base font-semibold text-white text-center">
+                ⚠️ استعادة القيم الافتراضية
               </Text>
             </Pressable>
           </View>

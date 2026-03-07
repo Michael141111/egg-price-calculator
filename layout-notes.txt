@@ -1,0 +1,11 @@
+Layout v2 observations:
+1. All elements visible - header, cards, inputs side-by-side, prices, total, keypad, change
+2. Tab bar is hidden (display: none) - more vertical space
+3. Input fields are now side by side (row layout) - saves vertical space
+4. Price info is in a row with divider - compact
+5. Keypad uses flex:1 to fill remaining space proportionally
+6. Change display at bottom is visible
+7. Everything fits without scrolling
+8. The layout adapts because keypad rows use flex:1 - they shrink on smaller screens
+9. adjustsFontSizeToFit is used on text elements for accessibility
+10. The layout looks good and compact

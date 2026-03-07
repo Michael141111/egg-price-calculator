@@ -1,19 +1,20 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { CalculatorState, Prices, AppSettings } from './types';
-import { loadSettings, savePrices, saveCurrency } from './storage';
+import { loadSettings, savePrices, saveCurrency, loadCustomDefaults, saveCustomDefaults } from './storage';
 
 interface CalculatorContextType {
   state: CalculatorState;
   settings: AppSettings;
+  customDefaults: Prices;
   selectEgg: (eggType: 'red' | 'white' | 'local') => void;
   addDigit: (digit: string) => void;
   clearField: () => void;
   clearAll: () => void;
   setActiveField: (field: 'eggCount' | 'amountPaid' | null) => void;
-  toggleCalculationMode: () => void;
   updatePrices: (prices: Prices) => Promise<void>;
   updateCurrency: (currency: string) => Promise<void>;
   resetToDefaults: () => Promise<void>;
+  saveCurrentAsDefaults: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -24,7 +25,6 @@ const initialState: CalculatorState = {
   eggCount: '',
   amountPaid: '',
   activeField: null,
-  calculationMode: 'byCount',
 };
 
 type CalculatorAction =
@@ -32,8 +32,7 @@ type CalculatorAction =
   | { type: 'ADD_DIGIT'; payload: string }
   | { type: 'CLEAR_FIELD' }
   | { type: 'CLEAR_ALL' }
-  | { type: 'SET_ACTIVE_FIELD'; payload: 'eggCount' | 'amountPaid' | null }
-  | { type: 'TOGGLE_CALCULATION_MODE' };
+  | { type: 'SET_ACTIVE_FIELD'; payload: 'eggCount' | 'amountPaid' | null };
 
 function calculatorReducer(state: CalculatorState, action: CalculatorAction): CalculatorState {
   switch (action.type) {
@@ -61,6 +60,7 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       return state;
 
     case 'CLEAR_FIELD':
+      // Only clear the focused field, keep focus on it
       if (state.activeField === 'eggCount') {
         return { ...state, eggCount: '' };
       } else if (state.activeField === 'amountPaid') {
@@ -82,15 +82,6 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
         activeField: action.payload,
       };
 
-    case 'TOGGLE_CALCULATION_MODE':
-      return {
-        ...state,
-        calculationMode: state.calculationMode === 'byCount' ? 'byAmount' : 'byCount',
-        eggCount: '',
-        amountPaid: '',
-        activeField: null,
-      };
-
     default:
       return state;
   }
@@ -103,14 +94,23 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     currencyName: 'جنيه مصري',
     themeMode: 'system',
   });
+  const [customDefaults, setCustomDefaults] = useState<Prices>({
+    red: 90,
+    white: 99,
+    local: 150,
+  });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load settings on mount
+  // Load settings and custom defaults on mount
   useEffect(() => {
     const initSettings = async () => {
       try {
-        const loadedSettings = await loadSettings();
+        const [loadedSettings, loadedDefaults] = await Promise.all([
+          loadSettings(),
+          loadCustomDefaults(),
+        ]);
         setSettings(loadedSettings);
+        setCustomDefaults(loadedDefaults);
       } catch (error) {
         console.error('Error loading settings:', error);
       } finally {
@@ -123,6 +123,8 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
 
   const selectEgg = (eggType: 'red' | 'white' | 'local') => {
     dispatch({ type: 'SELECT_EGG', payload: eggType });
+    // Auto-focus on egg count field
+    dispatch({ type: 'SET_ACTIVE_FIELD', payload: 'eggCount' });
   };
 
   const addDigit = (digit: string) => {
@@ -139,10 +141,6 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
 
   const setActiveField = (field: 'eggCount' | 'amountPaid' | null) => {
     dispatch({ type: 'SET_ACTIVE_FIELD', payload: field });
-  };
-
-  const toggleCalculationMode = () => {
-    dispatch({ type: 'TOGGLE_CALCULATION_MODE' });
   };
 
   const updatePrices = async (prices: Prices) => {
@@ -162,22 +160,27 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
   };
 
   const resetToDefaults = async () => {
-    const defaultPrices = { red: 90, white: 99, local: 150 };
-    await updatePrices(defaultPrices);
+    await updatePrices(customDefaults);
+  };
+
+  const saveCurrentAsDefaults = async () => {
+    await saveCustomDefaults(settings.prices);
+    setCustomDefaults(settings.prices);
   };
 
   const value: CalculatorContextType = {
     state,
     settings,
+    customDefaults,
     selectEgg,
     addDigit,
     clearField,
     clearAll,
     setActiveField,
-    toggleCalculationMode,
     updatePrices,
     updateCurrency,
     resetToDefaults,
+    saveCurrentAsDefaults,
     isLoading,
   };
 

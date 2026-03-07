@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   PRICES: '@egg_calculator_prices',
   CURRENCY: '@egg_calculator_currency',
   THEME: '@egg_calculator_theme',
+  DEFAULT_PRICES: '@egg_calculator_default_prices',
 };
 
 const DEFAULT_PRICES: Prices = {
@@ -43,6 +44,30 @@ export async function loadSettings(): Promise<AppSettings> {
 }
 
 /**
+ * Load custom default prices from storage
+ */
+export async function loadCustomDefaults(): Promise<Prices> {
+  try {
+    const customDefaultsJson = await AsyncStorage.getItem(STORAGE_KEYS.DEFAULT_PRICES);
+    return customDefaultsJson ? JSON.parse(customDefaultsJson) : DEFAULT_PRICES;
+  } catch (error) {
+    console.error('Error loading custom defaults:', error);
+    return DEFAULT_PRICES;
+  }
+}
+
+/**
+ * Save custom default prices to storage
+ */
+export async function saveCustomDefaults(prices: Prices): Promise<void> {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEYS.DEFAULT_PRICES, JSON.stringify(prices));
+  } catch (error) {
+    console.error('Error saving custom defaults:', error);
+  }
+}
+
+/**
  * Save prices to storage
  */
 export async function savePrices(prices: Prices): Promise<void> {
@@ -76,7 +101,7 @@ export async function saveTheme(theme: ThemeMode): Promise<void> {
 }
 
 /**
- * Get default prices
+ * Get default prices (hardcoded system defaults)
  */
 export function getDefaultPrices(): Prices {
   return { ...DEFAULT_PRICES };
@@ -94,4 +119,15 @@ export function getDefaultCurrency(): string {
  */
 export function getDefaultTheme(): ThemeMode {
   return DEFAULT_THEME;
+}
+
+/**
+ * Get system default prices (90/99/150)
+ */
+export function getSystemDefaultPrices(): Prices {
+  return {
+    red: 90,
+    white: 99,
+    local: 150,
+  };
 }

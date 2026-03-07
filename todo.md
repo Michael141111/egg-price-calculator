@@ -78,10 +78,25 @@
 - [x] Verify all features working
 - [ ] Prepare for publication
 
-## New Feature: Calculate Eggs from Amount
-- [x] Add toggle/checkbox to switch between two modes
-- [x] Mode 1 (default): Input egg count, calculate total and change
-- [x] Mode 2 (new): Input amount, calculate egg count and change
-- [x] Update calculator context to handle both modes
-- [x] Update home screen UI to show/hide fields based on mode
-- [x] Test calculations for accuracy
+## Enhancement: Improved Default Values Management
+- [x] Add separate "Set as Default" button for each price field
+- [x] Show current default values clearly in settings
+- [x] Add confirmation dialog when restoring defaults
+- [x] Display visual indicator for fields that differ from defaults
+
+## New Feature Requests
+- [x] Add "Save Current Prices as Defaults" button in settings
+- [x] Store custom default prices separately from current prices
+- [x] Auto-focus on egg count field when product card is selected
+- [x] Enable keypad input immediately after product selection
+
+## Bug Fixes
+- [x] Fix: Save current prices before saving as defaults
+- [x] Fix: AC button should only clear focused field, not all fields
+- [x] Fix: Restore focus after AC clears the field
+
+## Responsive Layout Issues
+- [x] Fix: Home screen layout must fit all screen sizes without cutoff
+- [x] Fix: Support different font size settings (accessibility)
+- [x] Fix: Adapt to different screen aspect ratios and DPI settings
+- [x] Fix: Use flexible layout that scales with content
