@@ -27,6 +27,15 @@ export interface AppSettings {
 }
 
 /**
+ * Cart item for multi-product selection
+ */
+export interface CartItem {
+  eggType: EggType;
+  quantity: number;
+  price: number;
+}
+
+/**
  * Calculator state
  */
 export interface CalculatorState {
@@ -35,6 +44,7 @@ export interface CalculatorState {
   amountPaid: string;
   activeField: 'eggCount' | 'amountPaid' | null;
   calculationMode: 'byCount' | 'byAmount';
+  cart: CartItem[];
 }
 
 /**

@@ -12,6 +12,8 @@ interface CalculatorContextType {
   clearAll: () => void;
   setActiveField: (field: 'eggCount' | 'amountPaid' | null) => void;
   toggleCalculationMode: () => void;
+  addToCart: () => void;
+  clearCart: () => void;
   updatePrices: (prices: Prices) => Promise<void>;
   updateCurrency: (currency: string) => Promise<void>;
   resetToDefaults: () => Promise<void>;
@@ -27,6 +29,7 @@ const initialState: CalculatorState = {
   amountPaid: '',
   activeField: null,
   calculationMode: 'byCount',
+  cart: [],
 };
 
 type CalculatorAction =
@@ -35,7 +38,9 @@ type CalculatorAction =
   | { type: 'CLEAR_FIELD' }
   | { type: 'CLEAR_ALL' }
   | { type: 'SET_ACTIVE_FIELD'; payload: 'eggCount' | 'amountPaid' | null }
-  | { type: 'TOGGLE_CALCULATION_MODE' };
+  | { type: 'TOGGLE_CALCULATION_MODE' }
+  | { type: 'ADD_TO_CART'; payload: { eggType: 'red' | 'white' | 'local'; quantity: number; price: number } }
+  | { type: 'CLEAR_CART' };
 
 function calculatorReducer(state: CalculatorState, action: CalculatorAction): CalculatorState {
   switch (action.type) {
@@ -89,6 +94,26 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       return {
         ...state,
         calculationMode: state.calculationMode === 'byCount' ? 'byAmount' : 'byCount',
+        eggCount: '',
+        amountPaid: '',
+        activeField: null,
+      };
+
+    case 'ADD_TO_CART':
+      return {
+        ...state,
+        cart: [...state.cart, action.payload],
+        selectedEgg: null,
+        eggCount: '',
+        amountPaid: '',
+        activeField: null,
+      };
+
+    case 'CLEAR_CART':
+      return {
+        ...state,
+        cart: [],
+        selectedEgg: null,
         eggCount: '',
         amountPaid: '',
         activeField: null,
@@ -160,6 +185,21 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     dispatch({ type: 'TOGGLE_CALCULATION_MODE' });
   };
 
+  const addToCart = () => {
+    if (!state.selectedEgg) return;
+    const quantity = parseInt(state.eggCount) || 0;
+    if (quantity <= 0) return;
+    const price = settings.prices[state.selectedEgg];
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: { eggType: state.selectedEgg, quantity, price },
+    });
+  };
+
+  const clearCart = () => {
+    dispatch({ type: 'CLEAR_CART' });
+  };
+
   const updatePrices = async (prices: Prices) => {
     setSettings((prev) => ({
       ...prev,
@@ -195,6 +235,8 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     clearAll,
     setActiveField,
     toggleCalculationMode,
+    addToCart,
+    clearCart,
     updatePrices,
     updateCurrency,
     resetToDefaults,

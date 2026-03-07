@@ -1,5 +1,5 @@
-import { Text, View, Pressable, StyleSheet, I18nManager } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext } from '@/lib/theme-provider';
@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const colors = useColors();
   const { themeMode } = useThemeContext();
   const eggCountFieldRef = useRef<View>(null);
+  const [showCart, setShowCart] = useState(false);
   const {
     state,
     settings,
@@ -31,6 +32,8 @@ export default function HomeScreen() {
     clearAll,
     setActiveField,
     toggleCalculationMode,
+    addToCart,
+    clearCart,
     isLoading,
   } = useCalculator();
 
@@ -68,6 +71,10 @@ export default function HomeScreen() {
     remainder = amount - (eggsReceived * eggPrice);
   }
 
+  // Calculate cart totals
+  const cartTotal = state.cart.reduce((sum, item) => sum + (item.quantity * (item.price / 30)), 0);
+  const cartTotalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+
   if (isLoading) {
     return (
       <ScreenContainer className="justify-center items-center">
@@ -88,20 +95,33 @@ export default function HomeScreen() {
             <Text style={styles.settingsIcon}>⚙️</Text>
           </Pressable>
           <Text className="text-base font-bold text-foreground">آلة أسعار البيض</Text>
-          <Pressable
-            onPress={toggleCalculationMode}
-            style={({ pressed }) => [
-              styles.modeToggleBtn,
-              {
-                backgroundColor: state.calculationMode === 'byAmount' ? colors.primary : colors.surface,
-                opacity: pressed ? 0.7 : 1,
-              },
-            ]}
-          >
-            <Text style={styles.modeToggleIcon}>
-              {state.calculationMode === 'byCount' ? '💰' : '🥚'}
-            </Text>
-          </Pressable>
+          <View style={styles.headerRight}>
+            <Pressable
+              onPress={toggleCalculationMode}
+              style={({ pressed }) => [
+                styles.modeToggleBtn,
+                {
+                  backgroundColor: state.calculationMode === 'byAmount' ? colors.primary : colors.surface,
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}
+            >
+              <Text style={styles.modeToggleIcon}>
+                {state.calculationMode === 'byCount' ? '💰' : '🥚'}
+              </Text>
+            </Pressable>
+            {state.cart.length > 0 && (
+              <Pressable
+                onPress={() => setShowCart(!showCart)}
+                style={({ pressed }) => [
+                  styles.cartBtn,
+                  { backgroundColor: colors.primary, opacity: pressed ? 0.7 : 1 },
+                ]}
+              >
+                <Text style={styles.cartBtnText}>{state.cart.length}</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
 
         {/* Product Selection Cards */}
@@ -139,229 +159,298 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* Input Fields - two fields side by side */}
-        <View style={styles.inputsRow}>
-          {/* First Input Field */}
-          <View style={styles.inputWrapper} ref={eggCountFieldRef}>
-            <Text
-              className="text-muted font-semibold"
-              style={styles.inputLabel}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-            >
-              {state.calculationMode === 'byCount' ? 'عدد البيض' : 'المبلغ المطلوب'}
-            </Text>
-            <Pressable
-              onPress={() => setActiveField(state.calculationMode === 'byCount' ? 'eggCount' : 'amountPaid')}
-              style={({ pressed }) => [
-                styles.inputField,
-                {
-                  borderColor: 
-                    (state.calculationMode === 'byCount' && state.activeField === 'eggCount') ||
-                    (state.calculationMode === 'byAmount' && state.activeField === 'amountPaid')
-                      ? colors.primary 
-                      : colors.border,
-                  backgroundColor: colors.surface,
-                  opacity: pressed ? 0.8 : 1,
-                },
-              ]}
-            >
-              <Text
-                className="font-bold text-foreground"
-                style={styles.inputText}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {state.calculationMode === 'byCount' ? (state.eggCount || '0') : (state.amountPaid || '0')}
-              </Text>
-            </Pressable>
-          </View>
+        {/* Add Product Button */}
+        {state.selectedEgg && (
+          <Pressable
+            onPress={() => {
+              addToCart();
+              setShowCart(true);
+            }}
+            style={({ pressed }) => [
+              styles.addBtn,
+              { backgroundColor: colors.primary, opacity: pressed ? 0.7 : 1 },
+            ]}
+          >
+            <Text style={styles.addBtnText}>+ إضافة منتج</Text>
+          </Pressable>
+        )}
 
-          {/* Second Input Field */}
-          {state.calculationMode === 'byCount' && (
-            <View style={styles.inputWrapper}>
-              <Text
-                className="text-muted font-semibold"
-                style={styles.inputLabel}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                المبلغ المدفوع
-              </Text>
-              <Pressable
-                onPress={() => setActiveField('amountPaid')}
-                style={({ pressed }) => [
-                  styles.inputField,
-                  {
-                    borderColor: state.activeField === 'amountPaid' ? colors.primary : colors.border,
-                    backgroundColor: colors.surface,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-              >
-                <Text
-                  className="font-bold text-foreground"
-                  style={styles.inputText}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                >
-                  {state.amountPaid || '0'}
-                </Text>
-              </Pressable>
+        {/* Cart Display - Conditional */}
+        {showCart && state.cart.length > 0 ? (
+          <>
+            {/* Cart Items List */}
+            <View style={[styles.cartList, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              {state.cart.map((item, index) => {
+                const eggLabel = EGG_TYPES.find(e => e.id === item.eggType)?.label || '';
+                const itemTotal = item.quantity * (item.price / 30);
+                return (
+                  <View key={index} style={styles.cartItem}>
+                    <View style={styles.cartItemInfo}>
+                      <Text className="text-foreground font-semibold" style={styles.cartItemLabel}>
+                        {eggLabel}
+                      </Text>
+                      <Text className="text-muted" style={styles.cartItemQty}>
+                        {item.quantity} بيضة
+                      </Text>
+                    </View>
+                    <Text className="text-foreground font-semibold" style={styles.cartItemPrice}>
+                      {itemTotal.toFixed(2)} {settings.currencyName}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
-          )}
-        </View>
 
-        {/* Price Info Row */}
-        <View style={styles.priceInfoRow}>
-          <View style={styles.priceItem}>
-            <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر الكرتونة</Text>
-            <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
-              {cartonPrice} {settings.currencyName}
-            </Text>
-          </View>
-          <View style={styles.priceDivider} />
-          <View style={styles.priceItem}>
-            <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر البيضة</Text>
-            <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
-              {eggPrice.toFixed(2)} {settings.currencyName}
-            </Text>
-          </View>
-        </View>
+            {/* Cart Total */}
+            <View style={[styles.cartTotalBox, { backgroundColor: colors.primary }]}>
+              <Text style={styles.cartTotalLabel}>الإجمالي</Text>
+              <Text style={styles.cartTotalValue} numberOfLines={1} adjustsFontSizeToFit>
+                {cartTotal.toFixed(2)}
+              </Text>
+              <Text style={styles.cartTotalCurrency}>{settings.currencyName}</Text>
+            </View>
 
-        {/* Total - Prominent Display (Mode 1 only) */}
-        {state.calculationMode === 'byCount' && (
-          <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
-            <Text style={styles.totalLabel}>الإجمالي</Text>
-            <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
-              {total.toFixed(2)}
-            </Text>
-            <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
-          </View>
-        )}
-
-        {/* Eggs Received Display (Mode 2 only) */}
-        {state.calculationMode === 'byAmount' && (
-          <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
-            <Text style={styles.totalLabel}>عدد البيضات</Text>
-            <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
-              {eggsReceived}
-            </Text>
-            <Text style={styles.totalCurrency}>بيضة</Text>
-          </View>
-        )}
-
-        {/* Keypad - takes remaining space */}
-        <View style={styles.keypad}>
-          {/* Row 1: 7, 8, 9 */}
-          <View style={styles.keypadRow}>
-            {['7', '8', '9'].map((num) => (
-              <Pressable
-                key={num}
-                onPress={() => addDigit(num)}
-                style={({ pressed }) => [
-                  styles.keypadBtn,
-                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Row 2: 4, 5, 6 */}
-          <View style={styles.keypadRow}>
-            {['4', '5', '6'].map((num) => (
-              <Pressable
-                key={num}
-                onPress={() => addDigit(num)}
-                style={({ pressed }) => [
-                  styles.keypadBtn,
-                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Row 3: 1, 2, 3 */}
-          <View style={styles.keypadRow}>
-            {['1', '2', '3'].map((num) => (
-              <Pressable
-                key={num}
-                onPress={() => addDigit(num)}
-                style={({ pressed }) => [
-                  styles.keypadBtn,
-                  { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Row 4: 0, AC */}
-          <View style={styles.keypadRow}>
+            {/* Clear Cart Button */}
             <Pressable
-              onPress={() => addDigit('0')}
+              onPress={() => {
+                clearCart();
+                setShowCart(false);
+              }}
               style={({ pressed }) => [
-                styles.keypadBtn,
-                { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <Text className="font-bold text-foreground" style={styles.keypadText}>0</Text>
-            </Pressable>
-            <Pressable
-              onPress={clearField}
-              style={({ pressed }) => [
-                styles.keypadBtn,
+                styles.clearCartBtn,
                 { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
+              <Text style={styles.clearCartBtnText}>تصفير الشاشة</Text>
             </Pressable>
-          </View>
-        </View>
+          </>
+        ) : (
+          <>
+            {/* Input Fields - two fields side by side */}
+            <View style={styles.inputsRow}>
+              {/* First Input Field */}
+              <View style={styles.inputWrapper} ref={eggCountFieldRef}>
+                <Text
+                  className="text-muted font-semibold"
+                  style={styles.inputLabel}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {state.calculationMode === 'byCount' ? 'عدد البيض' : 'المبلغ المطلوب'}
+                </Text>
+                <Pressable
+                  onPress={() => setActiveField(state.calculationMode === 'byCount' ? 'eggCount' : 'amountPaid')}
+                  style={({ pressed }) => [
+                    styles.inputField,
+                    {
+                      borderColor: 
+                        (state.calculationMode === 'byCount' && state.activeField === 'eggCount') ||
+                        (state.calculationMode === 'byAmount' && state.activeField === 'amountPaid')
+                          ? colors.primary 
+                          : colors.border,
+                      backgroundColor: colors.surface,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                >
+                  <Text
+                    className="font-bold text-foreground"
+                    style={styles.inputText}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {state.calculationMode === 'byCount' ? (state.eggCount || '0') : (state.amountPaid || '0')}
+                  </Text>
+                </Pressable>
+              </View>
 
-        {/* Change Display (Mode 1) or Remainder Display (Mode 2) */}
-        <View style={[styles.changeBox, { backgroundColor: colors.surface }]}>
-          {state.calculationMode === 'byCount' ? (
-            <>
-              <Text className="text-muted" style={styles.changeLabel}>
-                {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
-              </Text>
-              <Text
-                style={[
-                  styles.changeValue,
-                  { color: change < 0 ? '#EF4444' : '#22C55E' },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {Math.abs(change).toFixed(2)}
-              </Text>
-              <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
-            </>
-          ) : (
-            <>
-              <Text className="text-muted" style={styles.changeLabel}>
-                المتبقي للعميل
-              </Text>
-              <Text
-                style={[
-                  styles.changeValue,
-                  { color: '#22C55E' },
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {remainder.toFixed(2)}
-              </Text>
-              <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
-            </>
-          )}
-        </View>
+              {/* Second Input Field */}
+              {state.calculationMode === 'byCount' && (
+                <View style={styles.inputWrapper}>
+                  <Text
+                    className="text-muted font-semibold"
+                    style={styles.inputLabel}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    المبلغ المدفوع
+                  </Text>
+                  <Pressable
+                    onPress={() => setActiveField('amountPaid')}
+                    style={({ pressed }) => [
+                      styles.inputField,
+                      {
+                        borderColor: state.activeField === 'amountPaid' ? colors.primary : colors.border,
+                        backgroundColor: colors.surface,
+                        opacity: pressed ? 0.8 : 1,
+                      },
+                    ]}
+                  >
+                    <Text
+                      className="font-bold text-foreground"
+                      style={styles.inputText}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                    >
+                      {state.amountPaid || '0'}
+                    </Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+
+            {/* Price Info Row */}
+            <View style={styles.priceInfoRow}>
+              <View style={styles.priceItem}>
+                <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر الكرتونة</Text>
+                <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {cartonPrice} {settings.currencyName}
+                </Text>
+              </View>
+              <View style={styles.priceDivider} />
+              <View style={styles.priceItem}>
+                <Text className="text-muted" style={styles.priceLabel} numberOfLines={1} adjustsFontSizeToFit>سعر البيضة</Text>
+                <Text className="font-semibold text-foreground" style={styles.priceValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {eggPrice.toFixed(2)} {settings.currencyName}
+                </Text>
+              </View>
+            </View>
+
+            {/* Total - Prominent Display (Mode 1 only) */}
+            {state.calculationMode === 'byCount' && (
+              <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
+                <Text style={styles.totalLabel}>الإجمالي</Text>
+                <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {total.toFixed(2)}
+                </Text>
+                <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
+              </View>
+            )}
+
+            {/* Eggs Received Display (Mode 2 only) */}
+            {state.calculationMode === 'byAmount' && (
+              <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
+                <Text style={styles.totalLabel}>عدد البيضات</Text>
+                <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+                  {eggsReceived}
+                </Text>
+                <Text style={styles.totalCurrency}>بيضة</Text>
+              </View>
+            )}
+
+            {/* Keypad - takes remaining space */}
+            <View style={styles.keypad}>
+              {/* Row 1: 7, 8, 9 */}
+              <View style={styles.keypadRow}>
+                {['7', '8', '9'].map((num) => (
+                  <Pressable
+                    key={num}
+                    onPress={() => addDigit(num)}
+                    style={({ pressed }) => [
+                      styles.keypadBtn,
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Row 2: 4, 5, 6 */}
+              <View style={styles.keypadRow}>
+                {['4', '5', '6'].map((num) => (
+                  <Pressable
+                    key={num}
+                    onPress={() => addDigit(num)}
+                    style={({ pressed }) => [
+                      styles.keypadBtn,
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Row 3: 1, 2, 3 */}
+              <View style={styles.keypadRow}>
+                {['1', '2', '3'].map((num) => (
+                  <Pressable
+                    key={num}
+                    onPress={() => addDigit(num)}
+                    style={({ pressed }) => [
+                      styles.keypadBtn,
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Row 4: 0, AC */}
+              <View style={styles.keypadRow}>
+                <Pressable
+                  onPress={() => addDigit('0')}
+                  style={({ pressed }) => [
+                    styles.keypadBtn,
+                    { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                  ]}
+                >
+                  <Text className="font-bold text-foreground" style={styles.keypadText}>0</Text>
+                </Pressable>
+                <Pressable
+                  onPress={clearField}
+                  style={({ pressed }) => [
+                    styles.keypadBtn,
+                    { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
+                  ]}
+                >
+                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Change Display (Mode 1) or Remainder Display (Mode 2) */}
+            <View style={[styles.changeBox, { backgroundColor: colors.surface }]}>
+              {state.calculationMode === 'byCount' ? (
+                <>
+                  <Text className="text-muted" style={styles.changeLabel}>
+                    {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.changeValue,
+                      { color: change < 0 ? '#EF4444' : '#22C55E' },
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {Math.abs(change).toFixed(2)}
+                  </Text>
+                  <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+                </>
+              ) : (
+                <>
+                  <Text className="text-muted" style={styles.changeLabel}>
+                    المتبقي للعميل
+                  </Text>
+                  <Text
+                    style={[
+                      styles.changeValue,
+                      { color: '#22C55E' },
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {remainder.toFixed(2)}
+                  </Text>
+                  <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+                </>
+              )}
+            </View>
+          </>
+        )}
       </View>
     </ScreenContainer>
   );
@@ -379,6 +468,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 2,
   },
+  headerRight: {
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+  },
   settingsBtn: {
     padding: 4,
   },
@@ -391,6 +485,18 @@ const styles = StyleSheet.create({
   },
   modeToggleIcon: {
     fontSize: 16,
+  },
+  cartBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   // Product Cards
   cardsRow: {
@@ -413,6 +519,77 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: 11,
+  },
+  // Add Button
+  addBtn: {
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  addBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  // Cart Display
+  cartList: {
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    maxHeight: 120,
+  },
+  cartItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  cartItemInfo: {
+    flex: 1,
+  },
+  cartItemLabel: {
+    fontSize: 12,
+  },
+  cartItemQty: {
+    fontSize: 10,
+    marginTop: 2,
+  },
+  cartItemPrice: {
+    fontSize: 12,
+    marginLeft: 8,
+  },
+  cartTotalBox: {
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  cartTotalLabel: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginBottom: 1,
+  },
+  cartTotalValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  cartTotalCurrency: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginTop: 1,
+  },
+  clearCartBtn: {
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  clearCartBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   // Input Fields
   inputsRow: {

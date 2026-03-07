@@ -111,3 +111,15 @@
 
 ## Bug Fix: Auto-focus in byAmount Mode
 - [x] When byAmount mode is active and product card is selected, auto-focus should go to amountPaid field (not eggCount)
+
+## New Feature: Multi-Product Selection
+- [x] Add support for selecting multiple products in one transaction
+- [x] Create cart/order structure to store multiple products with quantities
+- [x] Add "Add Product" button below product cards
+- [x] Display selected products list with quantities and individual prices
+- [x] Calculate and display total for all products
+- [x] Shrink keypad to make room for product details display
+- [x] Add "Clear All" button to reset entire screen
+- [x] Position "Clear All" button in appropriate location
+- [x] Update calculator context to handle multiple products
+- [x] Test multi-product calculations
