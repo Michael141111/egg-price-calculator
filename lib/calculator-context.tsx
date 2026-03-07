@@ -135,8 +135,9 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
 
   const selectEgg = (eggType: 'red' | 'white' | 'local') => {
     dispatch({ type: 'SELECT_EGG', payload: eggType });
-    // Auto-focus on egg count field
-    dispatch({ type: 'SET_ACTIVE_FIELD', payload: 'eggCount' });
+    // Auto-focus based on calculation mode
+    const focusField = state.calculationMode === 'byCount' ? 'eggCount' : 'amountPaid';
+    dispatch({ type: 'SET_ACTIVE_FIELD', payload: focusField });
   };
 
   const addDigit = (digit: string) => {

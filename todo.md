@@ -108,3 +108,6 @@
 - [x] Update calculator context to handle both modes
 - [x] Update home screen UI to show/hide fields based on mode
 - [x] Test calculations for accuracy
+
+## Bug Fix: Auto-focus in byAmount Mode
+- [x] When byAmount mode is active and product card is selected, auto-focus should go to amountPaid field (not eggCount)
