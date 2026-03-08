@@ -135,3 +135,12 @@
 - [x] Make cart badge button toggle cart visibility (show/hide cart items)
 - [x] Remove separate cart visibility toggle
 - [x] Cart badge shows item count and acts as toggle button
+
+## Bug Fixes: Cart View and Change Calculation
+- [x] Fix cart view: hide product cards, prices, and all UI elements except cart details
+- [x] Expand cart view vertically to show more space for cart items
+- [x] Add clear labels for quantity in cart (not just numbers)
+- [x] Merge duplicate products: update quantity instead of adding new row
+- [x] Add "Amount Paid" input field in cart view
+- [x] Add "Change/Remainder" display in cart view that updates automatically
+- [x] Fix change calculation in main screen: update when new product is added to cart

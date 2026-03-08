@@ -100,9 +100,23 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       };
 
     case 'ADD_TO_CART':
+      // Check if product already exists in cart
+      const existingIndex = state.cart.findIndex(item => item.eggType === action.payload.eggType);
+      let updatedCart;
+      if (existingIndex >= 0) {
+        // Update existing product: add quantity
+        updatedCart = [...state.cart];
+        updatedCart[existingIndex] = {
+          ...updatedCart[existingIndex],
+          quantity: updatedCart[existingIndex].quantity + action.payload.quantity,
+        };
+      } else {
+        // Add new product
+        updatedCart = [...state.cart, action.payload];
+      }
       return {
         ...state,
-        cart: [...state.cart, action.payload],
+        cart: updatedCart,
         selectedEgg: null,
         eggCount: '',
         amountPaid: '',
