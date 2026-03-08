@@ -130,3 +130,8 @@
 - [x] Clear input fields when "Add Product" is pressed, but keep cart visible
 - [x] Update cart total and count after each addition
 - [x] Show cart item count badge in header that updates dynamically
+
+## Bug Fix: Cart Badge Toggle
+- [x] Make cart badge button toggle cart visibility (show/hide cart items)
+- [x] Remove separate cart visibility toggle
+- [x] Cart badge shows item count and acts as toggle button
