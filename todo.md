@@ -144,3 +144,16 @@
 - [x] Add "Amount Paid" input field in cart view
 - [x] Add "Change/Remainder" display in cart view that updates automatically
 - [x] Fix change calculation in main screen: update when new product is added to cart
+
+## Bug Fix: byAmount Mode Display
+- [x] Fix byAmount mode to show calculated egg count as result (not just change)
+- [x] Hide egg count input field in byAmount mode
+- [x] Show amount input field in byAmount mode
+- [x] Display "Eggs Received" as read-only result
+- [x] Display "Remainder" for customer
+
+## Bug Fix: Button Sizing in Cart View
+- [x] Increase keypad button sizes for better usability
+- [x] Improve spacing between number buttons
+- [x] Resize AC button and "Clear Screen" button for consistency
+- [x] Ensure buttons are easily tappable on mobile devices

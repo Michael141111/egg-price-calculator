@@ -378,7 +378,7 @@ export default function HomeScreen() {
               </View>
 
               {/* Second Input Field */}
-              {state.calculationMode === 'byCount' && (
+              {state.calculationMode === 'byCount' ? (
                 <View style={styles.inputWrapper}>
                   <Text
                     className="text-muted font-semibold"
@@ -408,6 +408,35 @@ export default function HomeScreen() {
                       {state.amountPaid || '0'}
                     </Text>
                   </Pressable>
+                </View>
+              ) : (
+                <View style={styles.inputWrapper}>
+                  <Text
+                    className="text-muted font-semibold"
+                    style={styles.inputLabel}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    عدد البيضات
+                  </Text>
+                  <View
+                    style={[
+                      styles.inputField,
+                      {
+                        borderColor: colors.border,
+                        backgroundColor: colors.surface,
+                      },
+                    ]}
+                  >
+                    <Text
+                      className="font-bold text-foreground"
+                      style={styles.inputText}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                    >
+                      {eggsReceived}
+                    </Text>
+                  </View>
                 </View>
               )}
             </View>
@@ -547,12 +576,12 @@ export default function HomeScreen() {
                 ) : (
                   <>
                     <Text className="text-muted" style={styles.changeLabel}>
-                      المتبقي للعميل
+                      الباقي للعميل
                     </Text>
                     <Text
                       style={[
                         styles.changeValue,
-                        { color: '#22C55E' },
+                        { color: remainder > 0 ? '#22C55E' : '#EF4444' },
                       ]}
                       numberOfLines={1}
                       adjustsFontSizeToFit
@@ -806,21 +835,23 @@ const styles = StyleSheet.create({
   // Keypad
   keypad: {
     flex: 1,
-    gap: 3,
+    gap: 6,
   },
   keypadRow: {
     flex: 1,
     flexDirection: 'row',
-    gap: 3,
+    gap: 6,
   },
   keypadBtn: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 50,
   },
   keypadText: {
-    fontSize: 18,
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   // Bottom Row
   bottomRow: {
