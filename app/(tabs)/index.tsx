@@ -158,7 +158,7 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
-      <ScrollView style={[styles.container, { gap: sizes.containerGap }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.container, { gap: sizes.containerGap }]} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header - fixed height */}
         <View style={styles.header}>
           <Pressable
@@ -669,6 +669,8 @@ export default function HomeScreen() {
             </View>
           </>
         )}
+        {/* Spacer to fill empty space on large screens */}
+        <View style={{ flex: 1 }} />
       </ScrollView>
     </ScreenContainer>
   );
