@@ -11,6 +11,70 @@ import { useRouter } from 'expo-router';
 // Set RTL for Arabic
 I18nManager.forceRTL(true);
 
+// Responsive sizing utility
+const getResponsiveSizes = (screenWidth: number) => {
+  // Small screens: < 380px (Samsung A15)
+  if (screenWidth < 380) {
+    return {
+      keypadBtnHeight: 35,
+      keypadBtnFontSize: 14,
+      keypadGap: 2,
+      totalBoxHeight: 50,
+      totalFontSize: 24,
+      totalLabelSize: 10,
+      totalCurrencySize: 9,
+      addBtnHeight: 36,
+      addBtnFontSize: 11,
+      inputHeight: 36,
+      inputFontSize: 12,
+      changeBoxHeight: 40,
+      changeValueSize: 14,
+      changeLabelSize: 9,
+      containerGap: 2,
+    };
+  }
+  // Medium screens: 380-480px
+  else if (screenWidth < 480) {
+    return {
+      keypadBtnHeight: 42,
+      keypadBtnFontSize: 16,
+      keypadGap: 3,
+      totalBoxHeight: 56,
+      totalFontSize: 26,
+      totalLabelSize: 11,
+      totalCurrencySize: 10,
+      addBtnHeight: 40,
+      addBtnFontSize: 12,
+      inputHeight: 40,
+      inputFontSize: 13,
+      changeBoxHeight: 44,
+      changeValueSize: 16,
+      changeLabelSize: 10,
+      containerGap: 3,
+    };
+  }
+  // Large screens: >= 480px (Samsung S25 Ultra)
+  else {
+    return {
+      keypadBtnHeight: 50,
+      keypadBtnFontSize: 18,
+      keypadGap: 4,
+      totalBoxHeight: 64,
+      totalFontSize: 32,
+      totalLabelSize: 12,
+      totalCurrencySize: 11,
+      addBtnHeight: 44,
+      addBtnFontSize: 13,
+      inputHeight: 44,
+      inputFontSize: 14,
+      changeBoxHeight: 50,
+      changeValueSize: 18,
+      changeLabelSize: 11,
+      containerGap: 4,
+    };
+  }
+};
+
 const EGG_TYPES = [
   { id: 'red', label: 'بيض أحمر', image: require('@/assets/images/egg-red.png'), color: '#DC2626' },
   { id: 'white', label: 'بيض أبيض', image: require('@/assets/images/egg-white.png'), color: '#3B82F6' },
@@ -24,6 +88,7 @@ export default function HomeScreen() {
   const { width, height } = useWindowDimensions();
   const isSmallScreen = width < 380;
   const isMediumScreen = width < 480;
+  const sizes = getResponsiveSizes(width);
   const eggCountFieldRef = useRef<View>(null);
   const [showCart, setShowCart] = useState(false);
   const [cartAmountPaid, setCartAmountPaid] = useState('');
@@ -93,7 +158,7 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
-      <ScrollView style={[styles.container, isSmallScreen && styles.containerSmall]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.container, { gap: sizes.containerGap }]} showsVerticalScrollIndicator={false}>
         {/* Header - fixed height */}
         <View style={styles.header}>
           <Pressable
@@ -475,126 +540,126 @@ export default function HomeScreen() {
             </View>
 
             {/* Total - Prominent Display */}
-            <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
-              <Text style={styles.totalLabel}>الإجمالي</Text>
-              <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
+            <View style={[styles.totalBox, { backgroundColor: colors.primary, minHeight: sizes.totalBoxHeight }]}>
+              <Text style={[styles.totalLabel, { fontSize: sizes.totalLabelSize }]}>الإجمالي</Text>
+              <Text style={[styles.totalValue, { fontSize: sizes.totalFontSize }]} numberOfLines={1} adjustsFontSizeToFit>
                 {state.calculationMode === 'byAmount' 
                   ? (eggsReceived * eggPrice).toFixed(2)
                   : (cartTotal + total).toFixed(2)
                 }
               </Text>
-              <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
+              <Text style={[styles.totalCurrency, { fontSize: sizes.totalCurrencySize }]}>{settings.currencyName}</Text>
             </View>
 
             {/* Keypad */}
-            <View style={styles.keypad}>
+            <View style={[styles.keypad, { gap: sizes.keypadGap }]}>
               {/* Row 1: 7, 8, 9 */}
-              <View style={styles.keypadRow}>
+              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
                 {['7', '8', '9'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => addDigit(num)}
                     style={({ pressed }) => [
                       styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                     ]}
                   >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
                   </Pressable>
                 ))}
               </View>
 
               {/* Row 2: 4, 5, 6 */}
-              <View style={styles.keypadRow}>
+              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
                 {['4', '5', '6'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => addDigit(num)}
                     style={({ pressed }) => [
                       styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                     ]}
                   >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
                   </Pressable>
                 ))}
               </View>
 
               {/* Row 3: 1, 2, 3 */}
-              <View style={styles.keypadRow}>
+              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
                 {['1', '2', '3'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => addDigit(num)}
                     style={({ pressed }) => [
                       styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                     ]}
                   >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
+                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
                   </Pressable>
                 ))}
               </View>
 
               {/* Row 4: 0, AC */}
-              <View style={styles.keypadRow}>
+              <View style={[styles.bottomRow, { gap: sizes.keypadGap }]}>
                 <Pressable
                   onPress={() => addDigit('0')}
                   style={({ pressed }) => [
                     styles.keypadBtn,
-                    { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
+                    { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                   ]}
                 >
-                  <Text className="font-bold text-foreground" style={styles.keypadText}>0</Text>
+                  <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>0</Text>
                 </Pressable>
                 <Pressable
                   onPress={clearField}
                   style={({ pressed }) => [
                     styles.keypadBtn,
-                    { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
+                    { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                   ]}
                 >
-                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
+                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>AC</Text>
                 </Pressable>
               </View>
             </View>
 
             {/* Change Display */}
-            <View style={styles.bottomRow}>
-              <View style={[styles.changeBox, { backgroundColor: colors.surface }]}>
+            <View style={[styles.bottomRow, { gap: sizes.keypadGap }]}>
+              <View style={[styles.changeBox, { backgroundColor: colors.surface, minHeight: sizes.changeBoxHeight }]}>
                 {state.calculationMode === 'byCount' ? (
                   <>
-                    <Text className="text-muted" style={styles.changeLabel}>
+                    <Text className="text-muted" style={[styles.changeLabel, { fontSize: sizes.changeLabelSize }]}>
                       {change < 0 ? 'المتبقي على العميل' : 'الباقي'}
                     </Text>
                     <Text
                       style={[
                         styles.changeValue,
-                        { color: change < 0 ? '#EF4444' : '#22C55E' },
+                        { color: change < 0 ? '#EF4444' : '#22C55E', fontSize: sizes.changeValueSize },
                       ]}
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
                       {Math.abs(change).toFixed(2)}
                     </Text>
-                    <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+                    <Text className="text-muted" style={[styles.changeCurrency, { fontSize: sizes.changeLabelSize }]}>{settings.currencyName}</Text>
                   </>
                 ) : (
                   <>
-                    <Text className="text-muted" style={styles.changeLabel}>
+                    <Text className="text-muted" style={[styles.changeLabel, { fontSize: sizes.changeLabelSize }]}>
                       الباقي للعميل
                     </Text>
                     <Text
                       style={[
                         styles.changeValue,
-                        { color: remainder > 0 ? '#22C55E' : '#EF4444' },
+                        { color: remainder > 0 ? '#22C55E' : '#EF4444', fontSize: sizes.changeValueSize },
                       ]}
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
                       {remainder.toFixed(2)}
                     </Text>
-                    <Text className="text-muted" style={styles.changeCurrency}>{settings.currencyName}</Text>
+                    <Text className="text-muted" style={[styles.changeCurrency, { fontSize: sizes.changeLabelSize }]}>{settings.currencyName}</Text>
                   </>
                 )}
               </View>
