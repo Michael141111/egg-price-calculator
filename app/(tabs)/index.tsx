@@ -283,9 +283,9 @@ export default function HomeScreen() {
 
             {/* Keypad for cart amount input */}
             <View style={styles.keypad}>
-              {/* Row 1: 7, 8, 9 */}
+              {/* Row 1: 1, 2, 3 */}
               <View style={styles.keypadRow}>
-                {['7', '8', '9'].map((num) => (
+                {['1', '2', '3'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => setCartAmountPaid(cartAmountPaid + num)}
@@ -315,9 +315,9 @@ export default function HomeScreen() {
                 ))}
               </View>
 
-              {/* Row 3: 1, 2, 3 */}
+              {/* Row 3: 7, 8, 9 */}
               <View style={styles.keypadRow}>
-                {['1', '2', '3'].map((num) => (
+                {['7', '8', '9'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => setCartAmountPaid(cartAmountPaid + num)}
@@ -555,9 +555,9 @@ export default function HomeScreen() {
 
             {/* Keypad */}
             <View style={[styles.keypad, { gap: sizes.keypadGap }]}>
-              {/* Row 1: 7, 8, 9 */}
+              {/* Row 1: 1, 2, 3 */}
               <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
-                {['7', '8', '9'].map((num) => (
+                {['1', '2', '3'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => addDigit(num)}
@@ -587,9 +587,9 @@ export default function HomeScreen() {
                 ))}
               </View>
 
-              {/* Row 3: 1, 2, 3 */}
+              {/* Row 3: 7, 8, 9 */}
               <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
-                {['1', '2', '3'].map((num) => (
+                {['7', '8', '9'].map((num) => (
                   <Pressable
                     key={num}
                     onPress={() => addDigit(num)}
