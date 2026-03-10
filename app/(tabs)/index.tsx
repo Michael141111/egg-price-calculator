@@ -445,7 +445,7 @@ export default function HomeScreen() {
             </View>
 
             {/* Add Product Button */}
-            {state.selectedEgg && (
+            {state.selectedEgg && state.calculationMode === 'byCount' && (
               <Pressable
                 onPress={addToCart}
                 style={({ pressed }) => [
@@ -478,7 +478,10 @@ export default function HomeScreen() {
             <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
               <Text style={styles.totalLabel}>الإجمالي</Text>
               <Text style={styles.totalValue} numberOfLines={1} adjustsFontSizeToFit>
-                {(cartTotal + total).toFixed(2)}
+                {state.calculationMode === 'byAmount' 
+                  ? (eggsReceived * eggPrice).toFixed(2)
+                  : (cartTotal + total).toFixed(2)
+                }
               </Text>
               <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
             </View>
