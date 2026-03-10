@@ -372,6 +372,8 @@ export default function HomeScreen() {
         )}
         {!showCart && (
           <>
+            {/* Main Content Wrapper - flex-grow for large screens */}
+            <View style={[{ flex: 1 }]}>
             {/* Product Selection Cards */}
             <View style={styles.cardsRow}>
               {EGG_TYPES.map((egg) => (
@@ -659,10 +661,11 @@ export default function HomeScreen() {
                     >
                       {remainder.toFixed(2)}
                     </Text>
-                    <Text className="text-muted" style={[styles.changeCurrency, { fontSize: sizes.changeLabelSize }]}>{settings.currencyName}</Text>
+                     <Text className="text-muted" style={[styles.changeCurrency, { fontSize: sizes.changeLabelSize }]}>{settings.currencyName}</Text>
                   </>
                 )}
               </View>
+            </View>
             </View>
           </>
         )}
