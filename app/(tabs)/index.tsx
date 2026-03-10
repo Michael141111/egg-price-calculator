@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, ScrollView, I18nManager } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, I18nManager, useWindowDimensions } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
@@ -21,6 +21,9 @@ export default function HomeScreen() {
   const router = useRouter();
   const colors = useColors();
   const { themeMode } = useThemeContext();
+  const { width, height } = useWindowDimensions();
+  const isSmallScreen = width < 380;
+  const isMediumScreen = width < 480;
   const eggCountFieldRef = useRef<View>(null);
   const [showCart, setShowCart] = useState(false);
   const [cartAmountPaid, setCartAmountPaid] = useState('');
@@ -89,8 +92,8 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScreenContainer className="flex-1 px-2" edges={['top', 'bottom', 'left', 'right']}>
-      <View style={styles.container}>
+    <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
+      <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
         {/* Header - fixed height */}
         <View style={styles.header}>
           <Pressable
@@ -605,13 +608,16 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
   },
+  containerSmall: {
+    gap: 2,
+  },
   // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,
-    minHeight: 48,
+    paddingVertical: 4,
+    minHeight: 40,
   },
   headerRight: {
     flexDirection: 'row',
@@ -619,118 +625,118 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingsBtn: {
-    padding: 8,
-    minWidth: 44,
-    minHeight: 44,
+    padding: 6,
+    minWidth: 36,
+    minHeight: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
   settingsIcon: {
-    fontSize: 24,
+    fontSize: 20,
   },
   modeToggleBtn: {
-    padding: 10,
-    borderRadius: 8,
-    minWidth: 44,
-    minHeight: 44,
+    padding: 6,
+    borderRadius: 6,
+    minWidth: 36,
+    minHeight: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modeToggleIcon: {
-    fontSize: 20,
+    fontSize: 16,
   },
   cartBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 44,
-    minHeight: 44,
+    minWidth: 36,
+    minHeight: 36,
   },
   cartBadgeText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 13,
+    fontSize: 11,
   },
   // Product Cards
   cardsRow: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 4,
     justifyContent: 'center',
   },
   card: {
     flex: 1,
-    borderRadius: 8,
-    padding: 8,
-    minHeight: 90,
+    borderRadius: 6,
+    padding: 6,
+    minHeight: 70,
     justifyContent: 'center',
   },
   cardContent: {
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
   },
   eggImage: {
-    width: 40,
-    height: 48,
+    width: 32,
+    height: 40,
   },
   cardLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
   },
   // Input Fields
   inputsRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 4,
   },
   inputWrapper: {
     flex: 1,
   },
   inputLabel: {
-    fontSize: 12,
-    marginBottom: 4,
+    fontSize: 10,
+    marginBottom: 2,
     textAlign: 'right',
     fontWeight: '600',
   },
   inputField: {
     borderWidth: 2,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 48,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    minHeight: 40,
   },
   inputText: {
-    fontSize: 18,
+    fontSize: 14,
     textAlign: 'right',
   },
   // Add Button
   addBtn: {
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: 8,
+    borderRadius: 6,
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: 40,
     justifyContent: 'center',
   },
   addBtnText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 12,
   },
   // Cart View
   cartViewContainer: {
     flex: 1,
-    gap: 8,
+    gap: 4,
   },
   cartItemsContainer: {
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 6,
+    padding: 6,
     flex: 1,
-    minHeight: 120,
+    minHeight: 80,
   },
   cartViewTitle: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 12,
+    marginBottom: 4,
     textAlign: 'right',
     fontWeight: '600',
   },
@@ -741,39 +747,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
     borderBottomWidth: 0.5,
-    minHeight: 50,
+    minHeight: 40,
   },
   cartItemLeft: {
     flex: 1,
   },
   cartItemLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '500',
   },
   cartItemMiddle: {
     alignItems: 'center',
-    marginHorizontal: 12,
+    marginHorizontal: 6,
   },
   cartItemQtyLabel: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: '500',
   },
   cartItemQty: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '600',
   },
   cartItemRight: {
     alignItems: 'center',
   },
   cartItemPriceLabel: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: '500',
   },
   cartItemPrice: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
   },
   // Price Info
@@ -781,18 +787,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: 6,
+    paddingVertical: 3,
   },
   priceItem: {
     alignItems: 'center',
     flex: 1,
   },
   priceLabel: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: '500',
   },
   priceValue: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '600',
   },
   priceDivider: {
@@ -802,127 +808,127 @@ const styles = StyleSheet.create({
   },
   // Total
   totalBox: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     alignItems: 'center',
-    minHeight: 80,
+    minHeight: 60,
     justifyContent: 'center',
   },
   totalLabel: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 2,
     fontWeight: '600',
   },
   totalValue: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
   totalCurrency: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#FFFFFF',
-    marginTop: 4,
+    marginTop: 2,
   },
   // Cart Input
   cartInputWrapper: {
-    gap: 4,
+    gap: 2,
   },
   cartInputLabel: {
-    fontSize: 12,
+    fontSize: 10,
     textAlign: 'right',
     fontWeight: '600',
   },
   cartInputField: {
     borderWidth: 2,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    minHeight: 48,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    minHeight: 40,
   },
   cartInputText: {
-    fontSize: 18,
+    fontSize: 14,
     textAlign: 'right',
   },
   // Cart Change
   cartChangeBox: {
     borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    minHeight: 70,
+    minHeight: 50,
     justifyContent: 'center',
   },
   cartChangeLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
   },
   cartChangeValue: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginVertical: 4,
+    marginVertical: 2,
   },
   cartChangeCurrency: {
-    fontSize: 12,
+    fontSize: 9,
   },
   // Keypad
   keypad: {
     flex: 1,
-    gap: 8,
+    gap: 4,
   },
   keypadRow: {
     flex: 1,
     flexDirection: 'row',
-    gap: 8,
+    gap: 4,
   },
   keypadBtn: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 60,
+    minHeight: 45,
   },
   keypadText: {
-    fontSize: 26,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   // Bottom Row
   bottomRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 4,
   },
   changeBox: {
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     alignItems: 'center',
     flex: 1,
-    minHeight: 70,
+    minHeight: 50,
     justifyContent: 'center',
   },
   changeLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
   },
   changeValue: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   changeCurrency: {
-    fontSize: 11,
+    fontSize: 9,
   },
   clearCartBtnFull: {
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: 6,
+    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
+    minHeight: 40,
   },
   clearCartBtnText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 12,
   },
 });
