@@ -93,7 +93,7 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
-      <View style={[styles.container, isSmallScreen && styles.containerSmall]}>
+      <ScrollView style={[styles.container, isSmallScreen && styles.containerSmall]} showsVerticalScrollIndicator={false}>
         {/* Header - fixed height */}
         <View style={styles.header}>
           <Pressable
@@ -130,7 +130,7 @@ export default function HomeScreen() {
         </View>
 
         {/* CART VIEW - Full screen replacement */}
-        {showCart && state.cart.length > 0 ? (
+        {showCart && state.cart.length > 0 && (
           <View style={styles.cartViewContainer}>
             {/* Cart Items List */}
             <View style={[styles.cartItemsContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -304,8 +304,8 @@ export default function HomeScreen() {
               <Text style={styles.clearCartBtnText}>تصفير الشاشة</Text>
             </Pressable>
           </View>
-        ) : (
-          /* MAIN VIEW - Normal entry mode */
+        )}
+        {!showCart && (
           <>
             {/* Product Selection Cards */}
             <View style={styles.cardsRow}>
@@ -598,7 +598,7 @@ export default function HomeScreen() {
             </View>
           </>
         )}
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }
@@ -606,10 +606,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 3,
+    gap: 2,
+    paddingBottom: 8,
   },
   containerSmall: {
-    gap: 2,
+    gap: 1,
   },
   // Header
   header: {
@@ -711,16 +712,16 @@ const styles = StyleSheet.create({
   },
   // Add Button
   addBtn: {
-    paddingVertical: 8,
-    borderRadius: 6,
+    paddingVertical: 6,
+    borderRadius: 5,
     alignItems: 'center',
-    minHeight: 40,
+    minHeight: 36,
     justifyContent: 'center',
   },
   addBtnText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 11,
   },
   // Cart View
   cartViewContainer: {
@@ -808,127 +809,127 @@ const styles = StyleSheet.create({
   },
   // Total
   totalBox: {
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    minHeight: 60,
+    minHeight: 50,
     justifyContent: 'center',
   },
   totalLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#FFFFFF',
     marginBottom: 2,
     fontWeight: '600',
   },
   totalValue: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
   totalCurrency: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#FFFFFF',
-    marginTop: 2,
+    marginTop: 1,
   },
   // Cart Input
   cartInputWrapper: {
-    gap: 2,
+    gap: 1,
   },
   cartInputLabel: {
-    fontSize: 10,
+    fontSize: 9,
     textAlign: 'right',
     fontWeight: '600',
   },
   cartInputField: {
     borderWidth: 2,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    minHeight: 40,
+    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    minHeight: 36,
   },
   cartInputText: {
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'right',
   },
   // Cart Change
   cartChangeBox: {
     borderWidth: 1,
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    borderRadius: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
     alignItems: 'center',
-    minHeight: 50,
+    minHeight: 40,
     justifyContent: 'center',
   },
   cartChangeLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
   },
   cartChangeValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginVertical: 2,
+    marginVertical: 1,
   },
   cartChangeCurrency: {
-    fontSize: 9,
+    fontSize: 8,
   },
   // Keypad
   keypad: {
     flex: 1,
-    gap: 4,
+    gap: 2,
   },
   keypadRow: {
     flex: 1,
     flexDirection: 'row',
-    gap: 4,
+    gap: 2,
   },
   keypadBtn: {
     flex: 1,
-    borderRadius: 6,
+    borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 45,
+    minHeight: 35,
   },
   keypadText: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   // Bottom Row
   bottomRow: {
     flexDirection: 'row',
-    gap: 4,
+    gap: 2,
   },
   changeBox: {
-    borderRadius: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
     alignItems: 'center',
     flex: 1,
-    minHeight: 50,
+    minHeight: 40,
     justifyContent: 'center',
   },
   changeLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '600',
   },
   changeValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   changeCurrency: {
-    fontSize: 9,
+    fontSize: 8,
   },
   clearCartBtnFull: {
-    borderRadius: 6,
-    paddingVertical: 8,
+    borderRadius: 5,
+    paddingVertical: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 40,
+    minHeight: 36,
   },
   clearCartBtnText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 11,
   },
 });
