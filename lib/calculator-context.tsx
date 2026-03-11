@@ -144,6 +144,7 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     prices: { red: 90, white: 99, local: 150 },
     currencyName: 'جنيه مصري',
     themeMode: 'system',
+    keypadLayout: 'bottomToTop',
   });
   const [customDefaults, setCustomDefaults] = useState<Prices>({
     red: 90,

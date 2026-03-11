@@ -167,7 +167,7 @@ export default function HomeScreen() {
           >
             <Text style={styles.settingsIcon}>⚙️</Text>
           </Pressable>
-          <Text className="text-base font-bold text-foreground">آلة أسعار البيض</Text>
+          <Text className="text-base font-bold text-foreground">حاسبة أسعار البيض</Text>
           <View style={styles.headerRight}>
             <Pressable
               onPress={toggleCalculationMode}

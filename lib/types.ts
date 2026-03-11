@@ -18,12 +18,18 @@ export interface Prices {
 }
 
 /**
+ * Keypad layout options
+ */
+export type KeypadLayout = 'bottomToTop' | 'phoneDialpad';
+
+/**
  * App settings stored in AsyncStorage
  */
 export interface AppSettings {
   prices: Prices;
   currencyName: string;
   themeMode: ThemeMode;
+  keypadLayout: KeypadLayout;
 }
 
 /**
