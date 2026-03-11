@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { CalculatorState, Prices, AppSettings } from './types';
-import { loadSettings, savePrices, saveCurrency, loadCustomDefaults, saveCustomDefaults } from './storage';
+import { CalculatorState, Prices, AppSettings, KeypadLayout } from './types';
+import { loadSettings, savePrices, saveCurrency, loadCustomDefaults, saveCustomDefaults, saveKeypadLayout } from './storage';
 
 interface CalculatorContextType {
   state: CalculatorState;
@@ -18,6 +18,7 @@ interface CalculatorContextType {
   updateCurrency: (currency: string) => Promise<void>;
   resetToDefaults: () => Promise<void>;
   saveCurrentAsDefaults: () => Promise<void>;
+  updateKeypadLayout: (layout: KeypadLayout) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -240,6 +241,14 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     setCustomDefaults(settings.prices);
   };
 
+  const updateKeypadLayout = async (layout: KeypadLayout) => {
+    setSettings((prev) => ({
+      ...prev,
+      keypadLayout: layout,
+    }));
+    await saveKeypadLayout(layout);
+  };
+
   const value: CalculatorContextType = {
     state,
     settings,
@@ -256,6 +265,7 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
     updateCurrency,
     resetToDefaults,
     saveCurrentAsDefaults,
+    updateKeypadLayout,
     isLoading,
   };
 

@@ -20,7 +20,7 @@ export interface Prices {
 /**
  * Keypad layout options
  */
-export type KeypadLayout = 'bottomToTop' | 'phoneDialpad';
+export type KeypadLayout = 'bottomToTop' | 'topToBottom';
 
 /**
  * App settings stored in AsyncStorage

@@ -7,10 +7,29 @@ import { useColors } from '@/hooks/use-colors';
 import { cn } from '@/lib/utils';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-
 // Set RTL for Arabic
 I18nManager.forceRTL(true);
-
+// Get keypad order based on layout preference
+const getKeypadOrder = (layout: 'bottomToTop' | 'topToBottom') => {
+  const numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  if (layout === 'topToBottom') {
+    // 1-2-3 / 4-5-6 / 7-8-9 / 0
+    return [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['0'],
+    ];
+  } else {
+    // 9-8-7 / 6-5-4 / 3-2-1 / 0
+    return [
+      ['9', '8', '7'],
+      ['6', '5', '4'],
+      ['3', '2', '1'],
+      ['0'],
+    ];
+  }
+};
 // Responsive sizing utility
 const getResponsiveSizes = (screenWidth: number) => {
   // Small screens: < 380px (Samsung A15)
@@ -74,13 +93,11 @@ const getResponsiveSizes = (screenWidth: number) => {
     };
   }
 };
-
 const EGG_TYPES = [
   { id: 'red', label: 'بيض أحمر', image: require('@/assets/images/egg-red.png'), color: '#DC2626' },
   { id: 'white', label: 'بيض أبيض', image: require('@/assets/images/egg-white.png'), color: '#3B82F6' },
   { id: 'local', label: 'بيض بلدي', image: require('@/assets/images/egg-local.png'), color: '#D97706' },
 ];
-
 export default function HomeScreen() {
   const router = useRouter();
   const colors = useColors();
@@ -105,28 +122,24 @@ export default function HomeScreen() {
     clearCart,
     isLoading,
   } = useCalculator();
-
   // Auto-focus on egg count when activeField changes to eggCount
   useEffect(() => {
     if (state.activeField === 'eggCount' && eggCountFieldRef.current) {
       // Focus is already set by the context
     }
   }, [state.activeField]);
-
   // Calculate values
   const selectedEggData = EGG_TYPES.find((egg) => egg.id === state.selectedEgg);
   const cartonPrice = selectedEggData
     ? settings.prices[state.selectedEgg as keyof typeof settings.prices]
     : 0;
   const eggPrice = cartonPrice > 0 ? cartonPrice / 30 : 0;
-
   let eggCount = 0;
   let total = 0;
   let amountPaid = 0;
   let change = 0;
   let eggsReceived = 0;
   let remainder = 0;
-
   if (state.calculationMode === 'byCount') {
     // Mode 1: Input egg count, calculate total and change
     eggCount = parseInt(state.eggCount, 10) || 0;
@@ -139,15 +152,12 @@ export default function HomeScreen() {
     eggsReceived = Math.floor(amount / eggPrice);
     remainder = amount - (eggsReceived * eggPrice);
   }
-
   // Calculate cart totals
   const cartTotal = state.cart.reduce((sum, item) => sum + (item.quantity * (item.price / 30)), 0);
   const cartTotalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-  
   // Calculate change for cart view
   const cartAmountPaidNum = parseFloat(cartAmountPaid) || 0;
   const cartChange = cartAmountPaidNum - cartTotal;
-
   if (isLoading) {
     return (
       <ScreenContainer className="justify-center items-center">
@@ -155,7 +165,6 @@ export default function HomeScreen() {
       </ScreenContainer>
     );
   }
-
   return (
     <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
       <ScrollView style={[styles.container, { gap: sizes.containerGap }]} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
@@ -193,7 +202,6 @@ export default function HomeScreen() {
             )}
           </View>
         </View>
-
         {/* CART VIEW - Full screen replacement */}
         {showCart && state.cart.length > 0 && (
           <View style={styles.cartViewContainer}>
@@ -232,7 +240,6 @@ export default function HomeScreen() {
                 })}
               </ScrollView>
             </View>
-
             {/* Cart Total */}
             <View style={[styles.totalBox, { backgroundColor: colors.primary }]}>
               <Text style={styles.totalLabel}>الإجمالي</Text>
@@ -241,7 +248,6 @@ export default function HomeScreen() {
               </Text>
               <Text style={styles.totalCurrency}>{settings.currencyName}</Text>
             </View>
-
             {/* Amount Paid Input */}
             <View style={styles.cartInputWrapper}>
               <Text className="text-muted font-semibold" style={styles.cartInputLabel}>
@@ -262,7 +268,6 @@ export default function HomeScreen() {
                 </Text>
               </Pressable>
             </View>
-
             {/* Change Display */}
             <View style={[styles.cartChangeBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Text className="text-muted" style={styles.cartChangeLabel}>
@@ -280,80 +285,39 @@ export default function HomeScreen() {
               </Text>
               <Text className="text-muted" style={styles.cartChangeCurrency}>{settings.currencyName}</Text>
             </View>
-
             {/* Keypad for cart amount input */}
             <View style={styles.keypad}>
-              {/* Row 1: 7, 8, 9 */}
-              <View style={styles.keypadRow}>
-                {['7', '8', '9'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => setCartAmountPaid(cartAmountPaid + num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 2: 4, 5, 6 */}
-              <View style={styles.keypadRow}>
-                {['4', '5', '6'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => setCartAmountPaid(cartAmountPaid + num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 3: 1, 2, 3 */}
-              <View style={styles.keypadRow}>
-                {['1', '2', '3'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => setCartAmountPaid(cartAmountPaid + num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={styles.keypadText}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 4: 0, AC */}
-              <View style={styles.keypadRow}>
-                <Pressable
-                  onPress={() => setCartAmountPaid(cartAmountPaid + '0')}
-                  style={({ pressed }) => [
-                    styles.keypadBtn,
-                    { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <Text className="font-bold text-foreground" style={styles.keypadText}>0</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setCartAmountPaid('')}
-                  style={({ pressed }) => [
-                    styles.keypadBtn,
-                    { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
-                </Pressable>
-              </View>
+              {getKeypadOrder(settings.keypadLayout).map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.keypadRow}>
+                  {row.map((num) => (
+                    <Pressable
+                      key={num}
+                      onPress={() => num === "AC" ? setCartAmountPaid("") : setCartAmountPaid(cartAmountPaid + num)}
+                      style={({ pressed }) => [
+                        styles.keypadBtn,
+                        {
+                          backgroundColor: num === "AC" ? "#EF4444" : colors.surface,
+                          opacity: pressed ? 0.7 : 1,
+                          flex: rowIndex === getKeypadOrder(settings.keypadLayout).length - 1 && row.length === 1 ? 1 : undefined,
+                        },
+                      ]}
+                    >
+                      <Text
+                        className="font-bold"
+                        style={[
+                          styles.keypadText,
+                          {
+                            color: num === "AC" ? "#FFFFFF" : colors.foreground,
+                          },
+                        ]}
+                      >
+                        {num}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ))}
             </View>
-
             {/* Clear Cart Button */}
             <Pressable
               onPress={() => {
@@ -408,7 +372,6 @@ export default function HomeScreen() {
                 </Pressable>
               ))}
             </View>
-
             {/* Input Fields */}
             <View style={styles.inputsRow}>
               {/* First Input Field */}
@@ -446,7 +409,6 @@ export default function HomeScreen() {
                   </Text>
                 </Pressable>
               </View>
-
               {/* Second Input Field */}
               {state.calculationMode === 'byCount' ? (
                 <View style={styles.inputWrapper}>
@@ -510,7 +472,6 @@ export default function HomeScreen() {
                 </View>
               )}
             </View>
-
             {/* Add Product Button */}
             {state.selectedEgg && state.calculationMode === 'byCount' && (
               <Pressable
@@ -523,7 +484,6 @@ export default function HomeScreen() {
                 <Text style={styles.addBtnText}>+ إضافة منتج</Text>
               </Pressable>
             )}
-
             {/* Price Info Row */}
             <View style={styles.priceInfoRow}>
               <View style={styles.priceItem}>
@@ -540,7 +500,6 @@ export default function HomeScreen() {
                 </Text>
               </View>
             </View>
-
             {/* Total - Prominent Display */}
             <View style={[styles.totalBox, { backgroundColor: colors.primary, minHeight: sizes.totalBoxHeight }]}>
               <Text style={[styles.totalLabel, { fontSize: sizes.totalLabelSize }]}>الإجمالي</Text>
@@ -552,80 +511,41 @@ export default function HomeScreen() {
               </Text>
               <Text style={[styles.totalCurrency, { fontSize: sizes.totalCurrencySize }]}>{settings.currencyName}</Text>
             </View>
-
             {/* Keypad */}
             <View style={[styles.keypad, { gap: sizes.keypadGap }]}>
-              {/* Row 1: 7, 8, 9 */}
-              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
-                {['7', '8', '9'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => addDigit(num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 2: 4, 5, 6 */}
-              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
-                {['4', '5', '6'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => addDigit(num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 3: 1, 2, 3 */}
-              <View style={[styles.keypadRow, { gap: sizes.keypadGap }]}>
-                {['1', '2', '3'].map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => addDigit(num)}
-                    style={({ pressed }) => [
-                      styles.keypadBtn,
-                      { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
-                    ]}
-                  >
-                    <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>{num}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              {/* Row 4: 0, AC */}
-              <View style={[styles.bottomRow, { gap: sizes.keypadGap }]}>
-                <Pressable
-                  onPress={() => addDigit('0')}
-                  style={({ pressed }) => [
-                    styles.keypadBtn,
-                    { backgroundColor: colors.surface, opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
-                  ]}
-                >
-                  <Text className="font-bold text-foreground" style={[styles.keypadText, { fontSize: sizes.keypadBtnFontSize }]}>0</Text>
-                </Pressable>
-                <Pressable
-                  onPress={clearField}
-                  style={({ pressed }) => [
-                    styles.keypadBtn,
-                    { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
-                  ]}
-                >
-                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>AC</Text>
-                </Pressable>
-              </View>
+              {getKeypadOrder(settings.keypadLayout).map((row, rowIndex) => (
+                <View key={rowIndex} style={[rowIndex === getKeypadOrder(settings.keypadLayout).length - 1 ? styles.bottomRow : styles.keypadRow, { gap: sizes.keypadGap }]}>
+                  {row.map((num) => (
+                    <Pressable
+                      key={num}
+                      onPress={() => num === 'AC' ? clearField() : addDigit(num)}
+                      style={({ pressed }) => [
+                        styles.keypadBtn,
+                        {
+                          backgroundColor: num === 'AC' ? '#EF4444' : colors.surface,
+                          opacity: pressed ? 0.7 : 1,
+                          minHeight: sizes.keypadBtnHeight,
+                          flex: rowIndex === getKeypadOrder(settings.keypadLayout).length - 1 && row.length === 1 ? 1 : undefined,
+                        },
+                      ]}
+                    >
+                      <Text
+                        className="font-bold"
+                        style={[
+                          styles.keypadText,
+                          {
+                            fontSize: sizes.keypadBtnFontSize,
+                            color: num === 'AC' ? '#FFFFFF' : colors.foreground,
+                          },
+                        ]}
+                      >
+                        {num}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ))}
             </View>
-
             {/* Change Display */}
             <View style={[styles.bottomRow, { gap: sizes.keypadGap }]}>
               <View style={[styles.changeBox, { backgroundColor: colors.surface, minHeight: sizes.changeBoxHeight }]}>
@@ -675,7 +595,6 @@ export default function HomeScreen() {
     </ScreenContainer>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
