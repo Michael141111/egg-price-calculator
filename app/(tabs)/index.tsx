@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 35,
-    maxWidth: '32%',
+    paddingHorizontal: 2,
   },
   keypadText: {
     fontSize: 14,
