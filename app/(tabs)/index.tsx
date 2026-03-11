@@ -870,11 +870,12 @@ const styles = StyleSheet.create({
   keypad: {
     flex: 1,
     gap: 2,
+    justifyContent: 'space-between',
   },
   keypadRow: {
-    flex: 1,
     flexDirection: 'row',
     gap: 2,
+    justifyContent: 'space-between',
   },
   keypadBtn: {
     flex: 1,
@@ -882,6 +883,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 35,
+    maxWidth: '32%',
   },
   keypadText: {
     fontSize: 14,
