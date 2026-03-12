@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppSettings, Prices, ThemeMode } from './types';
+import { AppSettings, Prices, ThemeMode, FavoriteQuantities } from './types';
 
 const STORAGE_KEYS = {
   PRICES: '@egg_calculator_prices',
   CURRENCY: '@egg_calculator_currency',
   THEME: '@egg_calculator_theme',
   DEFAULT_PRICES: '@egg_calculator_default_prices',
+  FAVORITE_QUANTITIES: '@egg_calculator_favorite_quantities',
 };
 
 const DEFAULT_PRICES: Prices = {
@@ -16,6 +17,9 @@ const DEFAULT_PRICES: Prices = {
 
 const DEFAULT_CURRENCY = 'جنيه مصري';
 const DEFAULT_THEME: ThemeMode = 'system';
+const DEFAULT_FAVORITE_QUANTITIES: FavoriteQuantities = {
+  quantities: [1, 5, 10, 15, 30],
+};
 
 /**
  * Load all app settings from storage
@@ -130,4 +134,35 @@ export function getSystemDefaultPrices(): Prices {
     white: 99,
     local: 150,
   };
+}
+
+/**
+ * Load favorite quantities from storage
+ */
+export async function loadFavoriteQuantities(): Promise<FavoriteQuantities> {
+  try {
+    const favoritesJson = await AsyncStorage.getItem(STORAGE_KEYS.FAVORITE_QUANTITIES);
+    return favoritesJson ? JSON.parse(favoritesJson) : DEFAULT_FAVORITE_QUANTITIES;
+  } catch (error) {
+    console.error('Error loading favorite quantities:', error);
+    return DEFAULT_FAVORITE_QUANTITIES;
+  }
+}
+
+/**
+ * Save favorite quantities to storage
+ */
+export async function saveFavoriteQuantities(quantities: FavoriteQuantities): Promise<void> {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEYS.FAVORITE_QUANTITIES, JSON.stringify(quantities));
+  } catch (error) {
+    console.error('Error saving favorite quantities:', error);
+  }
+}
+
+/**
+ * Get default favorite quantities
+ */
+export function getDefaultFavoriteQuantities(): FavoriteQuantities {
+  return { ...DEFAULT_FAVORITE_QUANTITIES };
 }

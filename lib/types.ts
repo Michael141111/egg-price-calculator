@@ -18,12 +18,20 @@ export interface Prices {
 }
 
 /**
+ * Favorite quantities for quick price lookup
+ */
+export interface FavoriteQuantities {
+  quantities: number[];
+}
+
+/**
  * App settings stored in AsyncStorage
  */
 export interface AppSettings {
   prices: Prices;
   currencyName: string;
   themeMode: ThemeMode;
+  favoriteQuantities?: FavoriteQuantities;
 }
 
 /**

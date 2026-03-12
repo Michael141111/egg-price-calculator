@@ -7,6 +7,8 @@ import { useColors } from '@/hooks/use-colors';
 import { cn } from '@/lib/utils';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
+import FavoritesScreen from './favorites';
+import FavoritesSettingsScreen from './favorites-settings';
 
 // Set RTL for Arabic
 I18nManager.forceRTL(true);
@@ -92,6 +94,8 @@ export default function HomeScreen() {
   const eggCountFieldRef = useRef<View>(null);
   const [showCart, setShowCart] = useState(false);
   const [cartAmountPaid, setCartAmountPaid] = useState('');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [showFavoritesSettings, setShowFavoritesSettings] = useState(false);
   const {
     state,
     settings,
@@ -162,10 +166,10 @@ export default function HomeScreen() {
         {/* Header - fixed height */}
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.push('/settings')}
+            onPress={() => setShowFavorites(true)}
             style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
           >
-            <Text style={styles.settingsIcon}>⚙️</Text>
+            <Text style={styles.settingsIcon}>⭐</Text>
           </Pressable>
           <Text className="text-base font-bold text-foreground">حاسبة أسعار البيض</Text>
           <View style={styles.headerRight}>
@@ -675,6 +679,29 @@ export default function HomeScreen() {
         {/* Spacer to fill empty space on large screens */}
         <View style={{ flex: 1 }} />
       </ScrollView>
+
+      {/* Favorites Modal */}
+      {showFavorites && (
+        <View style={[styles.modal, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+            <FavoritesScreen
+              onClose={() => setShowFavorites(false)}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Favorites Settings Modal */}
+      {showFavoritesSettings && (
+        <View style={[styles.modal, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+            <FavoritesSettingsScreen
+              onClose={() => setShowFavoritesSettings(false)}
+              onSave={() => setShowFavorites(true)}
+            />
+          </View>
+        </View>
+      )}
     </ScreenContainer>
   );
 }
@@ -1009,5 +1036,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 11,
+  },
+  // Modal
+  modal: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '90%',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
 });
