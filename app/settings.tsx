@@ -15,11 +15,6 @@ const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
   { label: 'تلقائي حسب النظام', value: 'system' },
 ];
 
-const KEYPAD_LAYOUT_OPTIONS = [
-  { label: 'من الأسفل للأعلى (9-8-7 / 6-5-4 / 3-2-1)', value: 'bottomToTop' },
-  { label: 'من الأعلى للأسفل (1-2-3 / 4-5-6 / 7-8-9)', value: 'topToBottom' },
-];
-
 // Note: These are just for display. Actual defaults are loaded from customDefaults
 const DEFAULT_PRICES = {
   red: 90,
@@ -30,7 +25,7 @@ const DEFAULT_PRICES = {
 export default function SettingsScreen() {
   const router = useRouter();
   const colors = useColors();
-  const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults, updateKeypadLayout } = useCalculator();
+  const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults } = useCalculator();
   const { themeMode, setThemeMode } = useThemeContext();
 
   const [redPrice, setRedPrice] = useState(String(settings.prices.red));
@@ -38,7 +33,6 @@ export default function SettingsScreen() {
   const [localPrice, setLocalPrice] = useState(String(settings.prices.local));
   const [currency, setCurrency] = useState(settings.currencyName);
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(themeMode);
-  const [selectedKeypadLayout, setSelectedKeypadLayout] = useState<'bottomToTop' | 'topToBottom'>(settings.keypadLayout);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
 
@@ -54,7 +48,6 @@ export default function SettingsScreen() {
       await updatePrices(newPrices);
       await updateCurrency(currency || 'جنيه مصري');
       await setThemeMode(selectedTheme);
-      await updateKeypadLayout(selectedKeypadLayout as any);
 
       alert('تم حفظ الإعدادات بنجاح');
       router.back();
@@ -235,59 +228,6 @@ export default function SettingsScreen() {
                   textAlign: 'right',
                 }}
               />
-            </View>
-          </View>
-
-          {/* Keypad Layout Section */}
-          <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">تخطيط لوحة الأرقام</Text>
-            <View className="gap-2">
-              {KEYPAD_LAYOUT_OPTIONS.map((option) => (
-                <Pressable
-                  key={option.value}
-                  onPress={() => setSelectedKeypadLayout(option.value as 'bottomToTop' | 'topToBottom')}
-                  style={({ pressed }) => [
-                    {
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingHorizontal: 12,
-                      paddingVertical: 10,
-                      borderWidth: 2,
-                      borderColor:
-                        selectedKeypadLayout === option.value ? colors.primary : colors.border,
-                      borderRadius: 6,
-                      backgroundColor:
-                        selectedKeypadLayout === option.value ? colors.surface : colors.background,
-                      opacity: pressed ? 0.8 : 1,
-                    },
-                  ]}
-                >
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      borderWidth: 2,
-                      borderColor: selectedKeypadLayout === option.value ? colors.primary : colors.border,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginRight: 12,
-                    }}
-                  >
-                    {selectedKeypadLayout === option.value && (
-                      <View
-                        style={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: 5,
-                          backgroundColor: colors.primary,
-                        }}
-                      />
-                    )}
-                  </View>
-                  <Text className="text-base font-semibold text-foreground">{option.label}</Text>
-                </Pressable>
-              ))}
             </View>
           </View>
 
