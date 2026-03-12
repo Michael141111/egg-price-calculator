@@ -167,10 +167,13 @@ export default function HomeScreen() {
           >
             <Text style={styles.settingsIcon}>⚙️</Text>
           </Pressable>
-          <Text className="text-base font-bold text-foreground">آلة أسعار البيض</Text>
+          <Text className="text-base font-bold text-foreground">حاسبة أسعار البيض</Text>
           <View style={styles.headerRight}>
             <Pressable
-              onPress={toggleCalculationMode}
+              onPress={() => {
+                toggleCalculationMode();
+                setActiveField(null);
+              }}
               style={({ pressed }) => [
                 styles.modeToggleBtn,
                 {
@@ -349,7 +352,7 @@ export default function HomeScreen() {
                     { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>AC</Text>
+                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold' }]}>مسح</Text>
                 </Pressable>
               </View>
             </View>
@@ -366,7 +369,7 @@ export default function HomeScreen() {
                 { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <Text style={styles.clearCartBtnText}>تصفير الشاشة</Text>
+              <Text style={styles.clearCartBtnText}>مسح الكل</Text>
             </Pressable>
           </View>
         )}
@@ -399,7 +402,7 @@ export default function HomeScreen() {
                     <Text
                       className="text-foreground text-center font-semibold"
                       style={styles.cardLabel}
-                      numberOfLines={1}
+                      numberOfLines={2}
                       adjustsFontSizeToFit
                     >
                       {egg.label}
@@ -621,13 +624,13 @@ export default function HomeScreen() {
                     { backgroundColor: '#EF4444', opacity: pressed ? 0.7 : 1, minHeight: sizes.keypadBtnHeight },
                   ]}
                 >
-                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>AC</Text>
+                  <Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>مسح</Text>
                 </Pressable>
               </View>
             </View>
 
             {/* Change Display */}
-            <View style={[styles.bottomRow, { gap: sizes.keypadGap }]}>
+            <View style={[styles.bottomRow, { gap: sizes.keypadGap, marginTop: 12 }]}>
               <View style={[styles.changeBox, { backgroundColor: colors.surface, minHeight: sizes.changeBoxHeight }]}>
                 {state.calculationMode === 'byCount' ? (
                   <>
@@ -755,8 +758,9 @@ const styles = StyleSheet.create({
     height: 40,
   },
   cardLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
+    lineHeight: 16,
   },
   // Input Fields
   inputsRow: {
@@ -790,6 +794,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 36,
     justifyContent: 'center',
+    marginTop: 12,
   },
   addBtnText: {
     color: '#FFFFFF',

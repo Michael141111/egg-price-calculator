@@ -157,3 +157,12 @@
 - [x] Improve spacing between number buttons
 - [x] Resize AC button and "Clear Screen" button for consistency
 - [x] Ensure buttons are easily tappable on mobile devices
+
+## User Requirements - March 12, 2026
+- [ ] تغيير اسم التطبيق إلى "حاسبة أسعار البيض" في جميع الأماكن
+- [ ] إضافة كلمة "أحمر" إلى اسم البيض الأحمر في السلة
+- [ ] زيادة المسافة بين صف إدخال عدد البيض والمبلغ المدفوع وصف زر إضافة منتج
+- [ ] زيادة المسافة بين صف الزر 0 و AC والصف السفلي (خانة الباقي)
+- [ ] تغيير اسم زر AC إلى "مسح" في جميع الأماكن
+- [ ] اختيار اسم أفضل لزر تصفير الشاشة
+- [ ] إلغاء focus من كروت المنتجات عند الضغط على زر toggle لتبديل طريقة الحساب
