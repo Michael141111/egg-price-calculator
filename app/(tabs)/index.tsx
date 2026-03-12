@@ -172,7 +172,7 @@ export default function HomeScreen() {
             <Pressable
               onPress={() => {
                 toggleCalculationMode();
-                setActiveField(null);
+                clearAll();
               }}
               style={({ pressed }) => [
                 styles.modeToggleBtn,

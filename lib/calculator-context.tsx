@@ -34,6 +34,7 @@ const initialState: CalculatorState = {
 
 type CalculatorAction =
   | { type: 'SELECT_EGG'; payload: 'red' | 'white' | 'local' }
+  | { type: 'DESELECT_EGG' }
   | { type: 'ADD_DIGIT'; payload: string }
   | { type: 'CLEAR_FIELD' }
   | { type: 'CLEAR_ALL' }
@@ -48,6 +49,15 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
       return {
         ...state,
         selectedEgg: action.payload,
+        eggCount: '',
+        amountPaid: '',
+        activeField: null,
+      };
+
+    case 'DESELECT_EGG':
+      return {
+        ...state,
+        selectedEgg: null,
         eggCount: '',
         amountPaid: '',
         activeField: null,
@@ -79,6 +89,7 @@ function calculatorReducer(state: CalculatorState, action: CalculatorAction): Ca
     case 'CLEAR_ALL':
       return {
         ...state,
+        selectedEgg: null,
         eggCount: '',
         amountPaid: '',
         activeField: null,
