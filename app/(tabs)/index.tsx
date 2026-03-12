@@ -165,12 +165,20 @@ export default function HomeScreen() {
       <ScrollView style={[styles.container, { gap: sizes.containerGap }]} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header - fixed height */}
         <View style={styles.header}>
-          <Pressable
-            onPress={() => setShowFavorites(true)}
-            style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Text style={styles.settingsIcon}>⭐</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable
+              onPress={() => setShowFavorites(true)}
+              style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Text style={styles.settingsIcon}>⭐</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setShowFavoritesSettings(true)}
+              style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Text style={styles.settingsIcon}>⚙️</Text>
+            </Pressable>
+          </View>
           <Text className="text-base font-bold text-foreground">حاسبة أسعار البيض</Text>
           <View style={styles.headerRight}>
             <Pressable
