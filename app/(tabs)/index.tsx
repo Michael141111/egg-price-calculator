@@ -161,7 +161,8 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
+    <View style={{ flex: 1 }}>
+      <ScreenContainer className="flex-1 px-1" edges={['top', 'bottom', 'left', 'right']}>
       <ScrollView style={[styles.container, { gap: sizes.containerGap }]} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header - fixed height */}
         <View style={styles.header}>
@@ -688,6 +689,8 @@ export default function HomeScreen() {
         <View style={{ flex: 1 }} />
       </ScrollView>
 
+    </ScreenContainer>
+
       {/* Favorites Modal */}
       {showFavorites && (
         <View style={[styles.modal, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
@@ -710,7 +713,7 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
-    </ScreenContainer>
+    </View>
   );
 }
 
