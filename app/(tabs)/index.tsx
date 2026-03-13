@@ -179,6 +179,12 @@ export default function HomeScreen() {
             >
               <Text style={styles.settingsIcon}>⚙️</Text>
             </Pressable>
+            <Pressable
+              onPress={() => router.push('/(tabs)/settings')}
+              style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Text style={styles.settingsIcon}>🔧</Text>
+            </Pressable>
           </View>
           <Text className="text-base font-bold text-foreground">حاسبة أسعار البيض</Text>
           <View style={styles.headerRight}>
