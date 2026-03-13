@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
-import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useCalculator } from '@/lib/calculator-context';
 import { FavoriteQuantities } from '@/lib/types';
@@ -31,7 +30,7 @@ export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
   };
 
   return (
-    <ScreenContainer className="flex-1 px-4">
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <Pressable onPress={onClose} style={styles.closeBtn}>
           <Text style={[styles.closeBtnText, { color: colors.primary }]}>✕</Text>
@@ -84,11 +83,15 @@ export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
           <Text style={[styles.buttonText, { color: colors.background }]}>إغلاق</Text>
         </Pressable>
       </View>
-    </ScreenContainer>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

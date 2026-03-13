@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, Pressable, TextInput, StyleSheet, Alert } from 'react-native';
-import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities, saveFavoriteQuantities, getDefaultFavoriteQuantities } from '@/lib/storage';
@@ -78,14 +77,14 @@ export default function FavoritesSettingsScreen({ onClose, onSave }: FavoritesSe
 
   if (loading) {
     return (
-      <ScreenContainer className="flex-1 items-center justify-center">
+      <View style={[styles.container, styles.loadingContainer, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.foreground }}>جاري التحميل...</Text>
-      </ScreenContainer>
+      </View>
     );
   }
 
   return (
-    <ScreenContainer className="flex-1 px-4">
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <Pressable onPress={onClose} style={styles.closeBtn}>
           <Text style={[styles.closeBtnText, { color: colors.primary }]}>✕</Text>
@@ -151,11 +150,19 @@ export default function FavoritesSettingsScreen({ onClose, onSave }: FavoritesSe
           <Text style={[styles.buttonText, { color: colors.foreground }]}>إلغاء</Text>
         </Pressable>
       </View>
-    </ScreenContainer>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
