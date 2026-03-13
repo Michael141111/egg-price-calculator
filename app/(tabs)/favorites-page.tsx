@@ -1,0 +1,137 @@
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ScreenContainer } from '@/components/screen-container';
+import { useColors } from '@/hooks/use-colors';
+import { useCalculator } from '@/lib/calculator-context';
+import { FavoriteQuantities } from '@/lib/types';
+import { loadFavoriteQuantities } from '@/lib/storage';
+
+const EGG_TYPES = [
+  { id: 'red', label: 'بيض أحمر', color: '#EF4444' },
+  { id: 'white', label: 'بيض أبيض', color: '#E5E7EB' },
+  { id: 'local', label: 'بيض بلدي', color: '#D4A574' },
+];
+
+export default function FavoritesPageScreen() {
+  const router = useRouter();
+  const colors = useColors();
+  const { settings } = useCalculator();
+  const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
+
+  useEffect(() => {
+    loadFavoriteQuantities().then(setFavorites);
+  }, []);
+
+  const calculatePrice = (quantity: number, eggType: 'red' | 'white' | 'local') => {
+    const cartonPrice = settings.prices[eggType];
+    return (cartonPrice / 30 * quantity).toFixed(2);
+  };
+
+  return (
+    <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
+      <View style={styles.header}>
+        <Pressable
+          onPress={() => router.back()}
+          style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Text className="text-2xl">←</Text>
+        </Pressable>
+        <Text className="text-2xl font-bold text-foreground">الأسعار المفضلة</Text>
+        <View className="w-8" />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Table Header */}
+        <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>العدد</Text>
+          {EGG_TYPES.map((type) => (
+            <Text key={type.id} style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>
+              {type.label}
+            </Text>
+          ))}
+        </View>
+
+        {/* Table Rows */}
+        {favorites.quantities.map((quantity, index) => (
+          <View
+            key={quantity}
+            style={[
+              styles.tableRow,
+              {
+                backgroundColor: index % 2 === 0 ? colors.background : colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.cell, { color: colors.foreground, flex: 1 }]}>{quantity}</Text>
+            {EGG_TYPES.map((type) => (
+              <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1 }]}>
+                {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
+              </Text>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Footer Button */}
+      <View style={styles.footer}>
+        <Pressable
+          onPress={() => router.back()}
+          style={[styles.button, { backgroundColor: colors.primary }]}
+        >
+          <Text style={[styles.buttonText, { color: colors.background }]}>← رجوع</Text>
+        </Pressable>
+      </View>
+    </ScreenContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingVertical: 12,
+  },
+  content: {
+    flexGrow: 1,
+    paddingVertical: 12,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 2,
+    marginBottom: 4,
+  },
+  headerCell: {
+    fontWeight: '600',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+  },
+  cell: {
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  footer: {
+    paddingVertical: 12,
+    gap: 8,
+  },
+  button: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

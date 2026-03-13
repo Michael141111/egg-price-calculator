@@ -179,5 +179,7 @@
 ## Critical Fixes - March 13, 2026
 - [x] استعادة صفحة الإعدادات الرئيسية (settings.tsx) المفقودة
 - [x] إضافة زر الوصول إلى صفحة الإعدادات الرئيسية (🔧) في الرأس
-- [ ] إصلاح مشكلة عدم عمل التطبيق على Android (Samsung Galaxy S25 Ultra)
-- [ ] اختبار التطبيق على جهاز Android حقيقي
+- [x] إصلاح مشكلة عدم عمل صفحات المفضلات على Android (استخدام router.push بدلاً من modals)
+- [x] تحويل favorites.tsx إلى صفحة منفصلة في التطبيق (favorites-page.tsx)
+- [x] تحويل favorites-settings.tsx إلى صفحة منفصلة في التطبيق (favorites-settings-page.tsx)
+- [x] ربط الأزرار بالصفحات الجديدة باستخدام router.push
