@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useCalculator } from '@/lib/calculator-context';
@@ -19,9 +19,17 @@ export default function FavoritesPageScreen() {
   const { settings } = useCalculator();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
 
+  // Load favorites when component mounts
   useEffect(() => {
     loadFavoriteQuantities().then(setFavorites);
   }, []);
+
+  // Refresh favorites whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFavoriteQuantities().then(setFavorites);
+    }, [])
+  );
 
   const calculatePrice = (quantity: number, eggType: 'red' | 'white' | 'local') => {
     const cartonPrice = settings.prices[eggType];

@@ -183,3 +183,8 @@
 - [x] تحويل favorites.tsx إلى صفحة منفصلة في التطبيق (favorites-page.tsx)
 - [x] تحويل favorites-settings.tsx إلى صفحة منفصلة في التطبيق (favorites-settings-page.tsx)
 - [x] ربط الأزرار بالصفحات الجديدة باستخدام router.push
+
+## Bug Fixes - Real-time Synchronization (March 13, 2026)
+- [x] إصلاح عدم تحديث صفحة المفضلات عند إضافة/تعديل الأعداد المفضلة
+- [x] استخدام useFocusEffect لتحديث البيانات عند العودة من صفحة الإعدادات
+- [x] اختبار التحديث الفوري للأعداد المفضلة
