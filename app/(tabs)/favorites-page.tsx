@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
+import { ScrollView, Text, View, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { Image } from 'expo-image';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useCalculator } from '@/lib/calculator-context';
@@ -8,9 +9,9 @@ import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities } from '@/lib/storage';
 
 const EGG_TYPES = [
-  { id: 'red', label: 'بيض أحمر', color: '#EF4444' },
-  { id: 'white', label: 'بيض أبيض', color: '#E5E7EB' },
-  { id: 'local', label: 'بيض بلدي', color: '#D4A574' },
+  { id: 'red', label: 'بيض أحمر', image: require('@/assets/images/egg-red.png'), color: '#DC2626' },
+  { id: 'white', label: 'بيض أبيض', image: require('@/assets/images/egg-white.png'), color: '#3B82F6' },
+  { id: 'local', label: 'بيض بلدي', image: require('@/assets/images/egg-local.png'), color: '#D97706' },
 ];
 
 export default function FavoritesPageScreen() {
@@ -18,6 +19,7 @@ export default function FavoritesPageScreen() {
   const colors = useColors();
   const { settings } = useCalculator();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
+  const { width } = Dimensions.get('window');
 
   // Load favorites when component mounts
   useEffect(() => {
@@ -36,8 +38,12 @@ export default function FavoritesPageScreen() {
     return (cartonPrice / 30 * quantity).toFixed(2);
   };
 
+  // Responsive card width
+  const cardWidth = width < 380 ? (width - 24) / 2 : (width - 32) / 3;
+
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
+      {/* Header */}
       <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}
@@ -49,37 +55,63 @@ export default function FavoritesPageScreen() {
         <View className="w-8" />
       </View>
 
+      {/* Product Cards */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Table Header */}
-        <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>العدد</Text>
-          {EGG_TYPES.map((type) => (
-            <Text key={type.id} style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>
-              {type.label}
-            </Text>
+        <View style={[styles.cardsContainer, { gap: width < 380 ? 8 : 12 }]}>
+          {EGG_TYPES.map((egg) => (
+            <View
+              key={egg.id}
+              style={[
+                styles.card,
+                {
+                  width: cardWidth,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
+            >
+              {/* Card Header - Image and Name */}
+              <View style={styles.cardHeader}>
+                <Image
+                  source={egg.image}
+                  style={styles.eggImage}
+                  contentFit="contain"
+                />
+                <Text
+                  className="text-foreground text-center font-semibold"
+                  style={styles.cardLabel}
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
+                >
+                  {egg.label}
+                </Text>
+              </View>
+
+              {/* Prices Table */}
+              <View style={[styles.pricesTable, { borderTopColor: colors.border }]}>
+                {favorites.quantities.map((quantity, index) => (
+                  <View
+                    key={quantity}
+                    style={[
+                      styles.priceRow,
+                      {
+                        borderTopColor: colors.border,
+                        borderTopWidth: index > 0 ? 1 : 0,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.quantityLabel, { color: colors.muted }]}>
+                      {quantity}
+                    </Text>
+                    <Text style={[styles.priceValue, { color: colors.foreground }]}>
+                      {calculatePrice(quantity, egg.id as 'red' | 'white' | 'local')}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
           ))}
         </View>
-
-        {/* Table Rows */}
-        {favorites.quantities.map((quantity, index) => (
-          <View
-            key={quantity}
-            style={[
-              styles.tableRow,
-              {
-                backgroundColor: index % 2 === 0 ? colors.background : colors.surface,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[styles.cell, { color: colors.foreground, flex: 1 }]}>{quantity}</Text>
-            {EGG_TYPES.map((type) => (
-              <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1 }]}>
-                {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
-              </Text>
-            ))}
-          </View>
-        ))}
       </ScrollView>
 
       {/* Footer Button */}
@@ -105,29 +137,53 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
-  tableHeader: {
+  cardsContainer: {
     flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 2,
-    marginBottom: 4,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
   },
-  headerCell: {
-    fontWeight: '600',
-    fontSize: 14,
-    textAlign: 'center',
+  card: {
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginBottom: 8,
   },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
+  cardHeader: {
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
   },
-  cell: {
+  eggImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 8,
+  },
+  cardLabel: {
     fontSize: 13,
-    textAlign: 'center',
+    fontWeight: '600',
+    lineHeight: 18,
+  },
+  pricesTable: {
+    borderTopWidth: 1,
+    paddingVertical: 8,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  quantityLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  priceValue: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   footer: {
     paddingVertical: 12,
