@@ -5,7 +5,9 @@ import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext, type ThemeMode } from '@/lib/theme-provider';
 import { useColors } from '@/hooks/use-colors';
+import { useLanguage } from '@/lib/language-context';
 import { Prices } from '@/lib/types';
+import { Language } from '@/lib/i18n';
 
 I18nManager.forceRTL(true);
 
@@ -13,6 +15,11 @@ const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
   { label: 'فاتح', value: 'light' },
   { label: 'داكن', value: 'dark' },
   { label: 'تلقائي حسب النظام', value: 'system' },
+];
+
+const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
+  { label: 'العربية', value: 'ar' },
+  { label: 'English', value: 'en' },
 ];
 
 // Note: These are just for display. Actual defaults are loaded from customDefaults
@@ -27,12 +34,14 @@ export default function SettingsScreen() {
   const colors = useColors();
   const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults } = useCalculator();
   const { themeMode, setThemeMode } = useThemeContext();
+  const { language, setLanguage } = useLanguage();
 
   const [redPrice, setRedPrice] = useState(String(settings.prices.red));
   const [whitePrice, setWhitePrice] = useState(String(settings.prices.white));
   const [localPrice, setLocalPrice] = useState(String(settings.prices.local));
   const [currency, setCurrency] = useState(settings.currencyName);
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(themeMode);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
 
@@ -48,12 +57,13 @@ export default function SettingsScreen() {
       await updatePrices(newPrices);
       await updateCurrency(currency || 'جنيه مصري');
       await setThemeMode(selectedTheme);
+      await setLanguage(selectedLanguage);
 
-      alert('تم حفظ الإعدادات بنجاح');
+      alert(selectedLanguage === 'ar' ? 'تم حفظ الإعدادات بنجاح' : 'Settings saved successfully');
       router.back();
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('حدث خطأ أثناء حفظ الإعدادات');
+      alert(selectedLanguage === 'ar' ? 'حدث خطأ أثناء حفظ الإعدادات' : 'Error saving settings');
     } finally {
       setIsSaving(false);
     }
@@ -228,6 +238,59 @@ export default function SettingsScreen() {
                   textAlign: 'right',
                 }}
               />
+            </View>
+          </View>
+
+          {/* Language Section */}
+          <View className="gap-3">
+            <Text className="text-lg font-bold text-foreground">اللغة</Text>
+            <View className="gap-2">
+              {LANGUAGE_OPTIONS.map((option) => (
+                <Pressable
+                  key={option.value}
+                  onPress={() => setSelectedLanguage(option.value)}
+                  style={({ pressed }) => [
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      paddingVertical: 10,
+                      borderWidth: 2,
+                      borderColor:
+                        selectedLanguage === option.value ? colors.primary : colors.border,
+                      borderRadius: 6,
+                      backgroundColor:
+                        selectedLanguage === option.value ? colors.surface : colors.background,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      borderWidth: 2,
+                      borderColor: selectedLanguage === option.value ? colors.primary : colors.border,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 12,
+                    }}
+                  >
+                    {selectedLanguage === option.value && (
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: colors.primary,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text className="text-base font-semibold text-foreground">{option.label}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
 

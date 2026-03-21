@@ -181,6 +181,12 @@ export default function HomeScreen() {
             >
               <Text style={styles.settingsIcon}>🔧</Text>
             </Pressable>
+            <Pressable
+              onPress={() => router.push('/(tabs)/analytics-page')}
+              style={({ pressed }) => [styles.settingsBtn, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Text style={styles.settingsIcon}>📊</Text>
+            </Pressable>
           </View>
           <View style={styles.headerRight}>
             <Pressable
