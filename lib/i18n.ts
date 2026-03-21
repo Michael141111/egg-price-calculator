@@ -70,6 +70,56 @@ export const translations = {
     loading: 'جاري التحميل...',
     noFavorites: 'لا توجد أسعار مفضلة',
     addFavoritesMessage: 'أضف كميات مفضلة لتتبع أسعارها',
+
+    // Additional strings for main page
+    enterQuantity: 'أدخل الكمية',
+    enterPrice: 'أدخل السعر',
+    addQuantity: 'إضافة كمية',
+    deleteQuantity: 'حذف الكمية',
+    edit: 'تعديل',
+    delete: 'حذف',
+    cancel: 'إلغاء',
+    confirm: 'تأكيد',
+    close: 'إغلاق',
+    selectEggType: 'اختر نوع البيض',
+    enterCartonPrice: 'أدخل سعر الكرتونة',
+    pricePerEgg: 'سعر البيضة الواحدة',
+    cartonPrice: 'سعر الكرتونة',
+    calculatePrice: 'حساب السعر',
+    switchMode: 'تبديل طريقة الحساب',
+    pricePerEggMode: 'حساب بالبيضة الواحدة',
+    cartonPriceMode: 'حساب بالكرتونة',
+
+    // Settings page
+    currentPrices: 'الأسعار الحالية',
+    defaultPrices: 'القيم الافتراضية الحالية',
+    redEggPrice: 'سعر كرتونة البيض الأحمر',
+    whiteEggPrice: 'سعر كرتونة البيض الأبيض',
+    localEggPrice: 'سعر كرتونة البيض البلدي',
+    currencyName: 'اسم العملة',
+    saveSettings: 'حفظ الإعدادات',
+    saveAsDefaults: 'حفظ كأسعار افتراضية',
+    restoreDefaults: 'استعادة القيم الافتراضية',
+    savingSettings: 'جاري حفظ الإعدادات...',
+    settingsSaved: 'تم حفظ الإعدادات بنجاح',
+    settingsError: 'حدث خطأ أثناء حفظ الإعدادات',
+
+    // Favorites settings
+    addFavoriteQuantity: 'إضافة كمية مفضلة',
+    removeFavoriteQuantity: 'إزالة كمية مفضلة',
+    editFavoriteQuantity: 'تعديل كمية مفضلة',
+    quantityAlreadyExists: 'هذه الكمية موجودة بالفعل',
+    quantityAdded: 'تمت إضافة الكمية بنجاح',
+    quantityRemoved: 'تمت إزالة الكمية بنجاح',
+    quantityUpdated: 'تم تحديث الكمية بنجاح',
+
+    // Analytics page
+    statistics: 'الإحصائيات',
+    recordCount: 'عدد السجلات',
+    noRecords: 'لا توجد سجلات',
+    selectDateRange: 'اختر نطاق التاريخ',
+    from: 'من',
+    to: 'إلى',
   },
   en: {
     // App title and navigation
@@ -139,6 +189,56 @@ export const translations = {
     loading: 'Loading...',
     noFavorites: 'No favorite prices',
     addFavoritesMessage: 'Add favorite quantities to track their prices',
+
+    // Additional strings for main page
+    enterQuantity: 'Enter quantity',
+    enterPrice: 'Enter price',
+    addQuantity: 'Add quantity',
+    deleteQuantity: 'Delete quantity',
+    edit: 'Edit',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    close: 'Close',
+    selectEggType: 'Select egg type',
+    enterCartonPrice: 'Enter carton price',
+    pricePerEgg: 'Price per egg',
+    cartonPrice: 'Carton price',
+    calculatePrice: 'Calculate price',
+    switchMode: 'Switch calculation mode',
+    pricePerEggMode: 'Calculate by single egg',
+    cartonPriceMode: 'Calculate by carton',
+
+    // Settings page
+    currentPrices: 'Current Prices',
+    defaultPrices: 'Current Default Values',
+    redEggPrice: 'Red Egg Carton Price',
+    whiteEggPrice: 'White Egg Carton Price',
+    localEggPrice: 'Local Egg Carton Price',
+    currencyName: 'Currency Name',
+    saveSettings: 'Save Settings',
+    saveAsDefaults: 'Save as Default Prices',
+    restoreDefaults: 'Restore Default Values',
+    savingSettings: 'Saving settings...',
+    settingsSaved: 'Settings saved successfully',
+    settingsError: 'Error saving settings',
+
+    // Favorites settings
+    addFavoriteQuantity: 'Add favorite quantity',
+    removeFavoriteQuantity: 'Remove favorite quantity',
+    editFavoriteQuantity: 'Edit favorite quantity',
+    quantityAlreadyExists: 'This quantity already exists',
+    quantityAdded: 'Quantity added successfully',
+    quantityRemoved: 'Quantity removed successfully',
+    quantityUpdated: 'Quantity updated successfully',
+
+    // Analytics page
+    statistics: 'Statistics',
+    recordCount: 'Record Count',
+    noRecords: 'No records',
+    selectDateRange: 'Select date range',
+    from: 'From',
+    to: 'To',
   },
 };
 

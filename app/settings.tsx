@@ -7,14 +7,14 @@ import { useThemeContext, type ThemeMode } from '@/lib/theme-provider';
 import { useColors } from '@/hooks/use-colors';
 import { useLanguage } from '@/lib/language-context';
 import { Prices } from '@/lib/types';
-import { Language } from '@/lib/i18n';
+import { Language, t } from '@/lib/i18n';
 
 I18nManager.forceRTL(true);
 
-const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
-  { label: 'فاتح', value: 'light' },
-  { label: 'داكن', value: 'dark' },
-  { label: 'تلقائي حسب النظام', value: 'system' },
+const getThemeOptions = (lang: Language): { label: string; value: ThemeMode }[] => [
+  { label: lang === 'ar' ? 'فاتح' : 'Light', value: 'light' },
+  { label: lang === 'ar' ? 'داكن' : 'Dark', value: 'dark' },
+  { label: lang === 'ar' ? 'تلقائي حسب النظام' : 'Auto', value: 'system' },
 ];
 
 const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
@@ -138,17 +138,17 @@ export default function SettingsScreen() {
             >
               <Text className="text-2xl">←</Text>
             </Pressable>
-            <Text className="text-2xl font-bold text-foreground">الإعدادات</Text>
+            <Text className="text-2xl font-bold text-foreground">{t('appSettings', language)}</Text>
             <View className="w-8" />
           </View>
 
           {/* Prices Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">أسعار الكراتين</Text>
+            <Text className="text-lg font-bold text-foreground">{language === 'ar' ? 'أسعار الكراتين' : 'Carton Prices'}</Text>
 
             {/* Red Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">🔴 سعر كرتونة البيض الأحمر</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">🔴 {t('redEggPrice', language)}</Text>
               <TextInput
                 value={redPrice}
                 onChangeText={setRedPrice}
@@ -171,7 +171,7 @@ export default function SettingsScreen() {
 
             {/* White Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">⚪ سعر كرتونة البيض الأبيض</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">⚪ {t('whiteEggPrice', language)}</Text>
               <TextInput
                 value={whitePrice}
                 onChangeText={setWhitePrice}
@@ -194,7 +194,7 @@ export default function SettingsScreen() {
 
             {/* Local Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">🟤 سعر كرتونة البيض البلدي</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">🟤 {t('localEggPrice', language)}</Text>
               <TextInput
                 value={localPrice}
                 onChangeText={setLocalPrice}
@@ -218,9 +218,9 @@ export default function SettingsScreen() {
 
           {/* Currency Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">العملة</Text>
+            <Text className="text-lg font-bold text-foreground">{t('currency', language)}</Text>
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">اسم العملة</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">{t('currencyName', language)}</Text>
               <TextInput
                 value={currency}
                 onChangeText={setCurrency}
@@ -243,7 +243,7 @@ export default function SettingsScreen() {
 
           {/* Language Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">اللغة</Text>
+            <Text className="text-lg font-bold text-foreground">{t('language', language)}</Text>
             <View className="gap-2">
               {LANGUAGE_OPTIONS.map((option) => (
                 <Pressable
@@ -296,9 +296,9 @@ export default function SettingsScreen() {
 
           {/* Theme Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">الثيم</Text>
+            <Text className="text-lg font-bold text-foreground">{t('theme', language)}</Text>
             <View className="gap-2">
-              {THEME_OPTIONS.map((option) => (
+              {getThemeOptions(language).map((option) => (
                 <Pressable
                   key={option.value}
                   onPress={() => setSelectedTheme(option.value)}
@@ -349,7 +349,7 @@ export default function SettingsScreen() {
 
           {/* Default Values Info */}
           <View className="bg-surface rounded-lg p-3 border border-border">
-            <Text className="text-sm font-bold text-foreground mb-2">📋 القيم الافتراضية الحالية:</Text>
+            <Text className="text-sm font-bold text-foreground mb-2">📋 {t('defaultPrices', language)}</Text>
             <View className="gap-1">
               <Text className="text-xs text-muted">🔴 البيض الأحمر: {customDefaults.red} جنيه</Text>
               <Text className="text-xs text-muted">⚪ البيض الأبيض: {customDefaults.white} جنيه</Text>
@@ -373,7 +373,7 @@ export default function SettingsScreen() {
               ]}
             >
               <Text className="text-base font-bold text-white text-center">
-                {isSaving ? 'جاري الحفظ...' : '✓ حفظ الإعدادات'}
+                {isSaving ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? '✓ حفظ الإعدادات' : '✓ Save Settings')}
               </Text>
             </Pressable>
 
@@ -391,7 +391,7 @@ export default function SettingsScreen() {
               ]}
             >
               <Text className="text-base font-semibold text-white text-center">
-                {isSavingDefaults ? 'جاري الحفظ...' : '📋 حفظ كأسعار افتراضية'}
+                {isSavingDefaults ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? '📋 حفظ كأسعار افتراضية' : '📋 Save as Defaults')}
               </Text>
             </Pressable>
 
@@ -408,7 +408,7 @@ export default function SettingsScreen() {
               ]}
             >
               <Text className="text-base font-semibold text-white text-center">
-                ⚠️ استعادة القيم الافتراضية
+                {language === 'ar' ? '⚠️ استعادة القيم الافتراضية' : '⚠️ Restore Defaults'}
               </Text>
             </Pressable>
           </View>
