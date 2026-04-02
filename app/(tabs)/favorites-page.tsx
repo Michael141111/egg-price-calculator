@@ -8,18 +8,19 @@ import { useCalculator } from '@/lib/calculator-context';
 import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities } from '@/lib/storage';
 import { useLanguage } from '@/lib/language-context';
+import { t } from '@/lib/i18n';
 
-const getEggTypes = (t: any) => [
-  { id: 'red', label: t('eggTypes.red'), image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
-  { id: 'white', label: t('eggTypes.white'), image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
-  { id: 'local', label: t('eggTypes.local'), image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
+const getEggTypes = (language: 'ar' | 'en') => [
+  { id: 'red', label: t('redEgg', language), image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
+  { id: 'white', label: t('whiteEgg', language), image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
+  { id: 'local', label: t('localEgg', language), image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
 ];
 
 export default function FavoritesPageScreen() {
   const router = useRouter();
   const colors = useColors();
   const { settings } = useCalculator();
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
 
   // Load favorites when component mounts
@@ -56,7 +57,7 @@ export default function FavoritesPageScreen() {
         {/* Table Header */}
         <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={[styles.headerCell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>العدد</Text>
-          {getEggTypes(t).map((type: any) => (
+          {getEggTypes(language).map((type: any) => (
             <View key={type.id} style={[styles.headerCellProduct, { flex: 1 }]}>
               <Image
                 source={type.image}
@@ -83,7 +84,7 @@ export default function FavoritesPageScreen() {
             ]}
           >
             <Text style={[styles.cell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>{quantity}</Text>
-            {getEggTypes(t).map((type: any) => (
+            {getEggTypes(language).map((type: any) => (
               <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1, textAlign: 'center' }]}>
                 {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
               </Text>

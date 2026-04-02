@@ -4,28 +4,30 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useLanguage } from '@/lib/language-context';
+import { t } from '@/lib/i18n';
 import { getPricesByPeriod, calculateStats, PriceRecord, PriceStats } from '@/lib/price-history';
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly';
 type EggType = 'red' | 'white' | 'local';
 
-const EGG_TYPES: { id: EggType; label: (t: any) => string; color: string }[] = [
-  { id: 'red', label: (t) => t('redEgg'), color: '#EF4444' },
-  { id: 'white', label: (t) => t('whiteEgg'), color: '#E5E7EB' },
-  { id: 'local', label: (t) => t('localEgg'), color: '#D4A574' },
+// Initialize with placeholder - will be populated with language-specific data
+let EGG_TYPES: { id: EggType; label: string; color: string }[] = [
+  { id: 'red', label: '', color: '#EF4444' },
+  { id: 'white', label: '', color: '#E5E7EB' },
+  { id: 'local', label: '', color: '#D4A574' },
 ];
 
-const PERIODS: { id: Period; label: (t: any) => string }[] = [
-  { id: 'daily', label: (t) => t('daily') },
-  { id: 'weekly', label: (t) => t('weekly') },
-  { id: 'monthly', label: (t) => t('monthly') },
-  { id: 'yearly', label: (t) => t('yearly') },
+let PERIODS: { id: Period; label: string }[] = [
+  { id: 'daily', label: '' },
+  { id: 'weekly', label: '' },
+  { id: 'monthly', label: '' },
+  { id: 'yearly', label: '' },
 ];
 
 export default function AnalyticsPageScreen() {
   const router = useRouter();
   const colors = useColors();
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('monthly');
   const [selectedEggType, setSelectedEggType] = useState<EggType>('red');
   const [priceRecords, setPriceRecords] = useState<PriceRecord[]>([]);
@@ -35,6 +37,21 @@ export default function AnalyticsPageScreen() {
     average: 0,
     count: 0,
   });
+
+  // Initialize labels based on language
+  useEffect(() => {
+    EGG_TYPES = [
+      { id: 'red', label: t('redEgg', language), color: '#EF4444' },
+      { id: 'white', label: t('whiteEgg', language), color: '#E5E7EB' },
+      { id: 'local', label: t('localEgg', language), color: '#D4A574' },
+    ];
+    PERIODS = [
+      { id: 'daily', label: t('daily', language) },
+      { id: 'weekly', label: t('weekly', language) },
+      { id: 'monthly', label: t('monthly', language) },
+      { id: 'yearly', label: t('yearly', language) },
+    ];
+  }, [language]);
 
   // Load analytics data when component mounts or period changes
   useEffect(() => {
@@ -149,7 +166,7 @@ export default function AnalyticsPageScreen() {
                     },
                   ]}
                 >
-                  {period.label(t)}
+                  {period.label}
                 </Text>
               </Pressable>
             ))}
@@ -193,7 +210,7 @@ export default function AnalyticsPageScreen() {
                     },
                   ]}
                 >
-                  {eggType.label(t)}
+                  {eggType.label}
                 </Text>
               </Pressable>
             ))}

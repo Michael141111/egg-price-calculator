@@ -262,3 +262,9 @@
 - [x] التحديث الفوري للتطبيق عند تغيير اللغة
 - [x] حفظ اختيار اللغة في التخزين المحلي
 - [x] استعادة اللغة المحفوظة عند فتح التطبيق
+
+
+## Critical Bugs - April 2, 2026
+- [x] اعدادات اللغة لم تظهر في صفحة الإعدادات (Fixed: Added missing imports in settings.tsx)
+- [x] التطبيق يتعطل عند الضغط على ايقونة صفحة الأسعار المفضلة (Fixed: Corrected useLanguage destructuring in favorites-page.tsx)
+- [x] التطبيق يتعطل عند الضغط على ايقونة صفحة التحليلات والرسوم البيانية (Fixed: Corrected useLanguage destructuring and added missing imports in analytics-page.tsx)

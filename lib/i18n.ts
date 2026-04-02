@@ -91,6 +91,7 @@ export const translations = {
     cartonPriceMode: 'حساب بالكرتونة',
 
     // Settings page
+    cartonPrices: 'أسعار الكراتين',
     currentPrices: 'الأسعار الحالية',
     defaultPrices: 'القيم الافتراضية الحالية',
     redEggPrice: 'سعر كرتونة البيض الأحمر',
@@ -210,6 +211,7 @@ export const translations = {
     cartonPriceMode: 'Calculate by carton',
 
     // Settings page
+    cartonPrices: 'Carton Prices',
     currentPrices: 'Current Prices',
     defaultPrices: 'Current Default Values',
     redEggPrice: 'Red Egg Carton Price',
