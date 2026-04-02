@@ -7,17 +7,19 @@ import { useColors } from '@/hooks/use-colors';
 import { useCalculator } from '@/lib/calculator-context';
 import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities } from '@/lib/storage';
+import { useLanguage } from '@/lib/language-context';
 
-const EGG_TYPES = [
-  { id: 'red', label: 'بيض أحمر', image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
-  { id: 'white', label: 'بيض أبيض', image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
-  { id: 'local', label: 'بيض بلدي', image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
+const getEggTypes = (t: any) => [
+  { id: 'red', label: t('eggTypes.red'), image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
+  { id: 'white', label: t('eggTypes.white'), image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
+  { id: 'local', label: t('eggTypes.local'), image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
 ];
 
 export default function FavoritesPageScreen() {
   const router = useRouter();
   const colors = useColors();
   const { settings } = useCalculator();
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
 
   // Load favorites when component mounts
@@ -46,7 +48,7 @@ export default function FavoritesPageScreen() {
         >
           <Text className="text-2xl">←</Text>
         </Pressable>
-        <Text className="text-2xl font-bold text-foreground">الأسعار المفضلة</Text>
+        <Text className="text-2xl font-bold text-foreground">{t('favorites')}</Text>
         <View className="w-8" />
       </View>
 
@@ -54,7 +56,7 @@ export default function FavoritesPageScreen() {
         {/* Table Header */}
         <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={[styles.headerCell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>العدد</Text>
-          {EGG_TYPES.map((type) => (
+          {getEggTypes(t).map((type: any) => (
             <View key={type.id} style={[styles.headerCellProduct, { flex: 1 }]}>
               <Image
                 source={type.image}
@@ -81,7 +83,7 @@ export default function FavoritesPageScreen() {
             ]}
           >
             <Text style={[styles.cell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>{quantity}</Text>
-            {EGG_TYPES.map((type) => (
+            {getEggTypes(t).map((type: any) => (
               <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1, textAlign: 'center' }]}>
                 {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
               </Text>

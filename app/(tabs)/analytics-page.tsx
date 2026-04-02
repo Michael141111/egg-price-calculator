@@ -206,7 +206,7 @@ export default function AnalyticsPageScreen() {
         {/* Statistics */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            الإحصائيات
+            {t('statistics')}
           </Text>
           <View style={styles.statsGrid}>
             <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
@@ -234,7 +234,9 @@ export default function AnalyticsPageScreen() {
               </Text>
             </View>
             <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.statLabel, { color: colors.muted }]}>عدد السجلات</Text>
+              <Text style={[styles.statLabel, { color: colors.muted }]}>
+                {t('recordCount')}
+              </Text>
               <Text style={[styles.statValue, { color: colors.primary }]}>{stats.count}</Text>
             </View>
           </View>
