@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext, type ThemeMode } from '@/lib/theme-provider';
+import { useLanguage } from '@/lib/language-context';
 import { useColors } from '@/hooks/use-colors';
 import { Prices } from '@/lib/types';
+import type { Language } from '@/lib/i18n';
 
 I18nManager.forceRTL(true);
 
@@ -22,17 +24,24 @@ const DEFAULT_PRICES = {
   local: 150,
 };
 
+const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
+  { label: 'العربية', value: 'ar' },
+  { label: 'English', value: 'en' },
+];
+
 export default function SettingsScreen() {
   const router = useRouter();
   const colors = useColors();
   const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults } = useCalculator();
   const { themeMode, setThemeMode } = useThemeContext();
+  const { language, setLanguage } = useLanguage();
 
   const [redPrice, setRedPrice] = useState(String(settings.prices.red));
   const [whitePrice, setWhitePrice] = useState(String(settings.prices.white));
   const [localPrice, setLocalPrice] = useState(String(settings.prices.local));
   const [currency, setCurrency] = useState(settings.currencyName);
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(themeMode);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
 
@@ -48,6 +57,9 @@ export default function SettingsScreen() {
       await updatePrices(newPrices);
       await updateCurrency(currency || 'جنيه مصري');
       await setThemeMode(selectedTheme);
+      if (selectedLanguage !== language) {
+        await setLanguage(selectedLanguage);
+      }
 
       alert('تم حفظ الإعدادات بنجاح');
       router.back();
@@ -228,6 +240,59 @@ export default function SettingsScreen() {
                   textAlign: 'right',
                 }}
               />
+            </View>
+          </View>
+
+          {/* Language Section */}
+          <View className="gap-3">
+            <Text className="text-lg font-bold text-foreground">اللغة</Text>
+            <View className="gap-2">
+              {LANGUAGE_OPTIONS.map((option) => (
+                <Pressable
+                  key={option.value}
+                  onPress={() => setSelectedLanguage(option.value)}
+                  style={({ pressed }) => [
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 12,
+                      paddingVertical: 10,
+                      borderWidth: 2,
+                      borderColor:
+                        selectedLanguage === option.value ? colors.primary : colors.border,
+                      borderRadius: 6,
+                      backgroundColor:
+                        selectedLanguage === option.value ? colors.surface : colors.background,
+                      opacity: pressed ? 0.8 : 1,
+                    },
+                  ]}
+                >
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      borderWidth: 2,
+                      borderColor: selectedLanguage === option.value ? colors.primary : colors.border,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 12,
+                    }}
+                  >
+                    {selectedLanguage === option.value && (
+                      <View
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: 5,
+                          backgroundColor: colors.primary,
+                        }}
+                      />
+                    )}
+                  </View>
+                  <Text className="text-base font-semibold text-foreground">{option.label}</Text>
+                </Pressable>
+              ))}
             </View>
           </View>
 
