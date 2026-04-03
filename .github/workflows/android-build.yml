@@ -1,40 +1,49 @@
-name: Android Build
-
+name: Android Build (APK & AAB)
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ] # سيتم البناء عند الرفع على فرع main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup JDK
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
-      - name: Grant permission
-        run: chmod +x gradlew
-
       - name: Build APK
-        run: ./gradlew assembleRelease
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
 
-      - name: Build AAB
-        run: ./gradlew bundleRelease
+      - name: Build AAB (App Bundle)
+        run: |
+          cd android
+          ./gradlew bundleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: APK
-          path: app/build/outputs/apk/release/
+          name: app-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: AAB
-          path: app/build/outputs/bundle/release/
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
