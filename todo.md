@@ -284,3 +284,11 @@
 - [x] Integrate savePriceToHistory() into settings.tsx when prices are saved (already working)
 - [x] Test that analytics page displays real price data after saving prices
 - [x] Verify charts show data correctly after adding price records (CONFIRMED: Charts now display data!)
+
+
+## Build Error - April 3, 2026
+- [ ] Fix Android SDK minSdkVersion build error during Publish
+- [ ] Error: User has minSdkVersion 22 but library was built for 24
+- [ ] Check gradle.properties and build.gradle configuration
+- [ ] Update app.config.ts with proper targetSdkVersion
+- [ ] Test Publish build process
