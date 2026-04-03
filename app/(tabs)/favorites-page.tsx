@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ScrollView, Text, View, Pressable, StyleSheet, I18nManager } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Image } from 'expo-image';
 import { ScreenContainer } from '@/components/screen-container';
@@ -8,27 +8,24 @@ import { useCalculator } from '@/lib/calculator-context';
 import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities } from '@/lib/storage';
 import { useLanguage } from '@/lib/language-context';
-import { t } from '@/lib/i18n';
-
-const getEggTypes = (language: 'ar' | 'en') => [
-  { id: 'red', label: t('redEgg', language), image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
-  { id: 'white', label: t('whiteEgg', language), image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
-  { id: 'local', label: t('localEgg', language), image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
-];
 
 export default function FavoritesPageScreen() {
   const router = useRouter();
   const colors = useColors();
   const { settings } = useCalculator();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
 
-  // Load favorites when component mounts
+  const EGG_TYPES = useMemo(() => [
+    { id: 'red', label: t('redEgg'), image: require('@/assets/images/egg-red.png'), color: '#EF4444' },
+    { id: 'white', label: t('whiteEgg'), image: require('@/assets/images/egg-white.png'), color: '#E5E7EB' },
+    { id: 'local', label: t('localEgg'), image: require('@/assets/images/egg-local.png'), color: '#D4A574' },
+  ], [t]);
+
   useEffect(() => {
     loadFavoriteQuantities().then(setFavorites);
   }, []);
 
-  // Refresh favorites whenever the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       loadFavoriteQuantities().then(setFavorites);
@@ -40,14 +37,16 @@ export default function FavoritesPageScreen() {
     return (cartonPrice / 30 * quantity).toFixed(2);
   };
 
+  const flexDirection = language === 'ar' ? 'row-reverse' : 'row';
+
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection }]}>
         <Pressable
           onPress={() => router.back()}
           style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
         >
-          <Text className="text-2xl">←</Text>
+          <Text className="text-2xl">{language === 'ar' ? '→' : '←'}</Text>
         </Pressable>
         <Text className="text-2xl font-bold text-foreground">{t('favorites')}</Text>
         <View className="w-8" />
@@ -55,9 +54,9 @@ export default function FavoritesPageScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Table Header */}
-        <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.headerCell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>العدد</Text>
-          {getEggTypes(language).map((type: any) => (
+        <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection }]}>
+          <Text style={[styles.headerCell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>{t('count')}</Text>
+          {EGG_TYPES.map((type) => (
             <View key={type.id} style={[styles.headerCellProduct, { flex: 1 }]}>
               <Image
                 source={type.image}
@@ -80,11 +79,12 @@ export default function FavoritesPageScreen() {
               {
                 backgroundColor: index % 2 === 0 ? colors.background : colors.surface,
                 borderColor: colors.border,
+                flexDirection,
               },
             ]}
           >
             <Text style={[styles.cell, { color: colors.foreground, flex: 0.6, textAlign: 'center' }]}>{quantity}</Text>
-            {getEggTypes(language).map((type: any) => (
+            {EGG_TYPES.map((type) => (
               <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1, textAlign: 'center' }]}>
                 {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
               </Text>
@@ -99,7 +99,7 @@ export default function FavoritesPageScreen() {
           onPress={() => router.back()}
           style={[styles.button, { backgroundColor: colors.primary }]}
         >
-          <Text style={[styles.buttonText, { color: colors.background }]}>← رجوع</Text>
+          <Text style={[styles.buttonText, { color: colors.background }]}>{t('back')}</Text>
         </Pressable>
       </View>
     </ScreenContainer>
@@ -108,7 +108,6 @@ export default function FavoritesPageScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
@@ -119,7 +118,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   tableHeader: {
-    flexDirection: 'row',
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 2,
@@ -145,10 +143,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     lineHeight: 14,
-    color: '#000',
   },
   tableRow: {
-    flexDirection: 'row',
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 1,

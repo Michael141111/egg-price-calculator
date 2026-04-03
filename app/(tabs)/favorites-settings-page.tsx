@@ -4,12 +4,12 @@ import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { loadFavoriteQuantities, saveFavoriteQuantities, getDefaultFavoriteQuantities } from '@/lib/storage';
-
-I18nManager.forceRTL(true);
+import { useLanguage } from '@/lib/language-context';
 
 export default function FavoritesSettingsPageScreen() {
   const router = useRouter();
   const colors = useColors();
+  const { language, t } = useLanguage();
   const [quantities, setQuantities] = useState<string[]>(['1', '5', '10', '15', '30']);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +34,7 @@ export default function FavoritesSettingsPageScreen() {
     if (quantities.length > 1) {
       setQuantities(quantities.filter((_, i) => i !== index));
     } else {
-      Alert.alert('تنبيه', 'يجب أن يكون هناك عدد واحد على الأقل');
+      Alert.alert(t('alertTitle'), t('minQuantityAlert'));
     }
   };
 
@@ -45,29 +45,29 @@ export default function FavoritesSettingsPageScreen() {
       .sort((a, b) => a - b);
 
     if (validQuantities.length === 0) {
-      Alert.alert('خطأ', 'يرجى إدخال أعداد صحيحة موجبة');
+      Alert.alert(t('errorTitle'), t('invalidQuantityError'));
       return;
     }
 
     await saveFavoriteQuantities({ quantities: validQuantities });
-    Alert.alert('نجح', 'تم حفظ الأعداد المفضلة بنجاح');
+    Alert.alert(t('successTitle'), t('success'));
     router.back();
   };
 
   const handleResetToDefaults = async () => {
     Alert.alert(
-      'إعادة تعيين',
-      'هل تريد إعادة تعيين الأعداد المفضلة إلى القيم الافتراضية؟',
+      t('reset'),
+      t('resetFavoritesConfirm'),
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'إعادة تعيين',
+          text: t('reset'),
           style: 'destructive',
           onPress: async () => {
             const defaults = await getDefaultFavoriteQuantities();
             setQuantities(defaults.quantities.map(String));
             await saveFavoriteQuantities(defaults);
-            Alert.alert('نجح', 'تم إعادة تعيين الأعداد المفضلة');
+            Alert.alert(t('successTitle'), t('favoritesResetSuccess'));
           },
         },
       ]
@@ -77,34 +77,37 @@ export default function FavoritesSettingsPageScreen() {
   if (loading) {
     return (
       <ScreenContainer className="flex-1 items-center justify-center">
-        <Text className="text-foreground">جاري التحميل...</Text>
+        <Text className="text-foreground">{t('loading')}</Text>
       </ScreenContainer>
     );
   }
 
+  const flexDirection = language === 'ar' ? 'row-reverse' : 'row';
+  const textAlign = language === 'ar' ? 'right' : 'left';
+
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection }]}>
         <Pressable
           onPress={() => router.back()}
           style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
         >
-          <Text className="text-2xl">←</Text>
+          <Text className="text-2xl">{language === 'ar' ? '→' : '←'}</Text>
         </Pressable>
-        <Text className="text-2xl font-bold text-foreground">إعدادات الأعداد المفضلة</Text>
+        <Text className="text-2xl font-bold text-foreground">{t('favoriteCountsSettings')}</Text>
         <View className="w-8" />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text className="text-lg font-bold text-foreground mb-4">الأعداد المفضلة:</Text>
+        <Text style={[styles.label, { color: colors.foreground, textAlign }]}>{t('favoriteCountsLabel')}</Text>
 
         {quantities.map((quantity, index) => (
-          <View key={index} style={styles.quantityRow}>
+          <View key={index} style={[styles.quantityRow, { flexDirection }]}>
             <TextInput
               value={quantity}
               onChangeText={(value) => handleQuantityChange(index, value)}
               keyboardType="number-pad"
-              placeholder="أدخل العدد"
+              placeholder={t('enterCountPlaceholder')}
               placeholderTextColor={colors.muted}
               style={[
                 styles.quantityInput,
@@ -112,6 +115,7 @@ export default function FavoritesSettingsPageScreen() {
                   borderColor: colors.border,
                   color: colors.foreground,
                   backgroundColor: colors.surface,
+                  textAlign: 'center',
                 },
               ]}
             />
@@ -128,7 +132,7 @@ export default function FavoritesSettingsPageScreen() {
           onPress={handleAddQuantity}
           style={[styles.addBtn, { backgroundColor: colors.primary }]}
         >
-          <Text style={[styles.addBtnText, { color: colors.background }]}>+ إضافة عدد</Text>
+          <Text style={[styles.addBtnText, { color: colors.background }]}>{t('addCountBtn')}</Text>
         </Pressable>
       </ScrollView>
 
@@ -137,19 +141,19 @@ export default function FavoritesSettingsPageScreen() {
           onPress={handleSave}
           style={[styles.button, { backgroundColor: colors.primary }]}
         >
-          <Text style={[styles.buttonText, { color: colors.background }]}>✓ حفظ</Text>
+          <Text style={[styles.buttonText, { color: colors.background }]}>{t('save')}</Text>
         </Pressable>
         <Pressable
           onPress={handleResetToDefaults}
           style={[styles.button, { backgroundColor: '#8B5CF6' }]}
         >
-          <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>↻ إعادة تعيين</Text>
+          <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>{t('reset')}</Text>
         </Pressable>
         <Pressable
           onPress={() => router.back()}
           style={[styles.button, { backgroundColor: colors.border }]}
         >
-          <Text style={[styles.buttonText, { color: colors.foreground }]}>← إلغاء</Text>
+          <Text style={[styles.buttonText, { color: colors.foreground }]}>{t('cancel')}</Text>
         </Pressable>
       </View>
     </ScreenContainer>
@@ -158,7 +162,6 @@ export default function FavoritesSettingsPageScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
@@ -168,8 +171,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingVertical: 12,
   },
+  label: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
   quantityRow: {
-    flexDirection: 'row',
     gap: 8,
     marginBottom: 12,
     alignItems: 'center',
@@ -181,7 +188,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    textAlign: 'center',
   },
   removeBtn: {
     width: 40,

@@ -1,33 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
 import { useLanguage } from '@/lib/language-context';
-import { t } from '@/lib/i18n';
 import { getPricesByPeriod, calculateStats, PriceRecord, PriceStats } from '@/lib/price-history';
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly';
 type EggType = 'red' | 'white' | 'local';
 
-// Initialize with placeholder - will be populated with language-specific data
-let EGG_TYPES: { id: EggType; label: string; color: string }[] = [
-  { id: 'red', label: '', color: '#EF4444' },
-  { id: 'white', label: '', color: '#E5E7EB' },
-  { id: 'local', label: '', color: '#D4A574' },
-];
-
-let PERIODS: { id: Period; label: string }[] = [
-  { id: 'daily', label: '' },
-  { id: 'weekly', label: '' },
-  { id: 'monthly', label: '' },
-  { id: 'yearly', label: '' },
-];
-
 export default function AnalyticsPageScreen() {
   const router = useRouter();
   const colors = useColors();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('monthly');
   const [selectedEggType, setSelectedEggType] = useState<EggType>('red');
   const [priceRecords, setPriceRecords] = useState<PriceRecord[]>([]);
@@ -38,20 +23,18 @@ export default function AnalyticsPageScreen() {
     count: 0,
   });
 
-  // Initialize labels based on language
-  useEffect(() => {
-    EGG_TYPES = [
-      { id: 'red', label: t('redEgg', language), color: '#EF4444' },
-      { id: 'white', label: t('whiteEgg', language), color: '#E5E7EB' },
-      { id: 'local', label: t('localEgg', language), color: '#D4A574' },
-    ];
-    PERIODS = [
-      { id: 'daily', label: t('daily', language) },
-      { id: 'weekly', label: t('weekly', language) },
-      { id: 'monthly', label: t('monthly', language) },
-      { id: 'yearly', label: t('yearly', language) },
-    ];
-  }, [language]);
+  const EGG_TYPES = useMemo(() => [
+    { id: 'red' as EggType, label: t('redEgg'), color: '#EF4444' },
+    { id: 'white' as EggType, label: t('whiteEgg'), color: '#E5E7EB' },
+    { id: 'local' as EggType, label: t('localEgg'), color: '#D4A574' },
+  ], [language, t]);
+
+  const PERIODS = useMemo(() => [
+    { id: 'daily' as Period, label: t('daily') },
+    { id: 'weekly' as Period, label: t('weekly') },
+    { id: 'monthly' as Period, label: t('monthly') },
+    { id: 'yearly' as Period, label: t('yearly') },
+  ], [language, t]);
 
   const loadAnalytics = React.useCallback(async () => {
     const records = await getPricesByPeriod(selectedPeriod);
@@ -60,27 +43,24 @@ export default function AnalyticsPageScreen() {
     setStats(priceStats);
   }, [selectedPeriod, selectedEggType]);
 
-  // Load analytics data when component mounts or period changes
   useEffect(() => {
     loadAnalytics();
   }, [loadAnalytics]);
 
-  // Refresh analytics whenever the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       loadAnalytics();
     }, [loadAnalytics])
   );
 
-
-
-  const getMaxPrice = React.useCallback(() => {
+  const getMaxPrice = useMemo(() => {
     if (priceRecords.length === 0) return 100;
     const prices = priceRecords.map(r => r.prices[selectedEggType]);
-    return Math.max(...prices) * 1.1; // Add 10% padding
+    const max = Math.max(...prices);
+    return max === 0 ? 100 : max * 1.1;
   }, [priceRecords, selectedEggType]);
 
-  const renderChart = React.useCallback(() => {
+  const renderChart = () => {
     if (priceRecords.length === 0) {
       return (
         <View style={[styles.chartContainer, { backgroundColor: colors.surface }]}>
@@ -89,7 +69,7 @@ export default function AnalyticsPageScreen() {
       );
     }
 
-    const maxPrice = getMaxPrice();
+    const maxPrice = getMaxPrice;
     const chartHeight = 200;
 
     return (
@@ -98,7 +78,8 @@ export default function AnalyticsPageScreen() {
           {priceRecords.map((record, index) => {
             const price = record.prices[selectedEggType];
             const height = (price / maxPrice) * chartHeight;
-            const label = new Date(record.date).toLocaleDateString('ar-EG', {
+            const dateObj = new Date(record.date);
+            const label = dateObj.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
               month: 'short',
               day: 'numeric',
             });
@@ -109,12 +90,12 @@ export default function AnalyticsPageScreen() {
                   style={[
                     styles.bar,
                     {
-                      height,
+                      height: Math.max(height, 4),
                       backgroundColor: EGG_TYPES.find(t => t.id === selectedEggType)?.color,
                     },
                   ]}
                 />
-                <Text style={[styles.barLabel, { color: colors.muted, fontSize: 10 }]}>
+                <Text style={[styles.barLabel, { color: colors.muted }]}>
                   {label}
                 </Text>
               </View>
@@ -123,7 +104,7 @@ export default function AnalyticsPageScreen() {
         </View>
       </View>
     );
-  }, [priceRecords, selectedEggType, colors, getMaxPrice]);
+  };
 
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
@@ -139,7 +120,6 @@ export default function AnalyticsPageScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Period Selection */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('selectPeriod')}
@@ -174,7 +154,6 @@ export default function AnalyticsPageScreen() {
           </View>
         </View>
 
-        {/* Egg Type Selection */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('eggType')}
@@ -218,10 +197,8 @@ export default function AnalyticsPageScreen() {
           </View>
         </View>
 
-        {/* Chart */}
         <View style={styles.section}>{renderChart()}</View>
 
-        {/* Statistics */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             {t('statistics')}
@@ -261,7 +238,6 @@ export default function AnalyticsPageScreen() {
         </View>
       </ScrollView>
 
-      {/* Footer Button */}
       <View style={styles.footer}>
         <Pressable
           onPress={() => router.back()}
