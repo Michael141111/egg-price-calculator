@@ -27,14 +27,14 @@ export default function AnalyticsPageScreen() {
     { id: 'red' as EggType, label: t('redEgg'), color: '#EF4444' },
     { id: 'white' as EggType, label: t('whiteEgg'), color: '#E5E7EB' },
     { id: 'local' as EggType, label: t('localEgg'), color: '#D4A574' },
-  ], [language, t]);
+  ], [t]);
 
   const PERIODS = useMemo(() => [
     { id: 'daily' as Period, label: t('daily') },
     { id: 'weekly' as Period, label: t('weekly') },
     { id: 'monthly' as Period, label: t('monthly') },
     { id: 'yearly' as Period, label: t('yearly') },
-  ], [language, t]);
+  ], [t]);
 
   const loadAnalytics = React.useCallback(async () => {
     const records = await getPricesByPeriod(selectedPeriod);
@@ -53,7 +53,7 @@ export default function AnalyticsPageScreen() {
     }, [loadAnalytics])
   );
 
-  const getMaxPrice = useMemo(() => {
+  const maxPrice = useMemo(() => {
     if (priceRecords.length === 0) return 100;
     const prices = priceRecords.map(r => r.prices[selectedEggType]);
     const max = Math.max(...prices);
@@ -69,7 +69,6 @@ export default function AnalyticsPageScreen() {
       );
     }
 
-    const maxPrice = getMaxPrice;
     const chartHeight = 200;
 
     return (
@@ -106,14 +105,17 @@ export default function AnalyticsPageScreen() {
     );
   };
 
+  const flexDirection = language === 'ar' ? 'row-reverse' : 'row';
+  const textAlign = language === 'ar' ? 'right' : 'left';
+
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
+      <View style={[styles.header, { flexDirection }]}>
         <Pressable
           onPress={() => router.back()}
           style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
         >
-          <Text className="text-2xl">←</Text>
+          <Text className="text-2xl">{language === 'ar' ? '→' : '←'}</Text>
         </Pressable>
         <Text className="text-2xl font-bold text-foreground">{t('priceAnalytics')}</Text>
         <View className="w-8" />
@@ -121,10 +123,10 @@ export default function AnalyticsPageScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, textAlign }]}>
             {t('selectPeriod')}
           </Text>
-          <View style={styles.buttonGroup}>
+          <View style={[styles.buttonGroup, { flexDirection }]}>
             {PERIODS.map(period => (
               <Pressable
                 key={period.id}
@@ -155,10 +157,10 @@ export default function AnalyticsPageScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, textAlign }]}>
             {t('eggType')}
           </Text>
-          <View style={styles.eggTypeGroup}>
+          <View style={[styles.eggTypeGroup, { flexDirection }]}>
             {EGG_TYPES.map(eggType => (
               <Pressable
                 key={eggType.id}
@@ -200,10 +202,10 @@ export default function AnalyticsPageScreen() {
         <View style={styles.section}>{renderChart()}</View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, textAlign }]}>
             {t('statistics')}
           </Text>
-          <View style={styles.statsGrid}>
+          <View style={[styles.statsGrid, { flexDirection }]}>
             <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
               <Text style={[styles.statLabel, { color: colors.muted }]}>
                 {t('highestPrice')}
@@ -252,7 +254,6 @@ export default function AnalyticsPageScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
@@ -271,7 +272,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   buttonGroup: {
-    flexDirection: 'row',
     gap: 8,
     flexWrap: 'wrap',
   },
@@ -289,7 +289,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   eggTypeGroup: {
-    flexDirection: 'row',
     gap: 12,
   },
   eggTypeButton: {
@@ -345,7 +344,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   statsGrid: {
-    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
   },
