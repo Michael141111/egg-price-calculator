@@ -3,9 +3,11 @@ import { Tabs } from "expo-router";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
+import { useLanguage } from "@/lib/language-context";
 
 export default function TabLayout() {
   const colors = useColors();
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -21,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "الرئيسية",
+          title: t('home'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />

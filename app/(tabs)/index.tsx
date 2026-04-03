@@ -264,19 +264,13 @@ export default function HomeScreen() {
                   <Text style={[styles.changeLabel, { color: colors.muted, fontSize: sizes.changeLabelSize }]}>{state.calculationMode === 'byCount' ? (change < 0 ? t('remainingForCustomer') : t('remainder')) : t('remainder')}</Text>
                   <Text style={[styles.changeValue, { color: state.calculationMode === 'byCount' && change < 0 ? '#EF4444' : colors.primary, fontSize: sizes.changeValueSize }]}>{state.calculationMode === 'byCount' ? Math.abs(change).toFixed(2) : remainder.toFixed(2)}</Text>
                 </View>
-                {state.calculationMode === 'byAmount' && (
-                  <View style={styles.changeItem}>
-                    <Text style={[styles.changeLabel, { color: colors.muted, fontSize: sizes.changeLabelSize }]}>{t('remainder')}</Text>
-                    <Text style={[styles.changeValue, { color: colors.primary, fontSize: sizes.changeValueSize }]}>{remainder.toFixed(2)}</Text>
-                  </View>
-                )}
               </View>
 
-              <View style={[styles.keypad, { gap: sizes.keyGap }]}>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0].map((num) => (
+              <View style={[styles.keypad, { gap: sizes.keypadGap }]}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (
                   <Pressable key={num} onPress={() => { if (showCart) { setCartAmountPaid(prev => prev + num); } else { addDigit(String(num)); } }} style={[styles.keypadBtn, { backgroundColor: colors.surface, borderColor: colors.border, height: sizes.keypadBtnHeight }]}><Text style={[styles.keypadText, { color: colors.foreground, fontSize: sizes.keypadBtnFontSize }]}>{num}</Text></Pressable>
                 ))}
-                <Pressable onPress={() => { if (showCart) { setCartAmountPaid(''); } else { clearField(); } }} style={[styles.keypadBtn, { backgroundColor: '#EF4444', borderColor: '#EF4444', height: sizes.keypadBtnHeight }]}><Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>{t('clear')}</Text></Pressable>
+                <Pressable onPress={() => { if (showCart) { setCartAmountPaid(''); } else { clearField(); } }} style={[styles.keypadBtn, { backgroundColor: '#EF4444', borderColor: '#EF4444', height: sizes.keypadBtnHeight, width: '65.5%' }]}><Text style={[styles.keypadText, { color: '#FFFFFF', fontWeight: 'bold', fontSize: sizes.keypadBtnFontSize }]}>{t('clear')}</Text></Pressable>
               </View>
             </View>
           </>
