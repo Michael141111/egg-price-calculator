@@ -1,35 +1,22 @@
 import { ScrollView, Text, View, Pressable, TextInput, I18nManager, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext, type ThemeMode } from '@/lib/theme-provider';
 import { useColors } from '@/hooks/use-colors';
 import { useLanguage } from '@/lib/language-context';
 import { Prices } from '@/lib/types';
-import { Language, t as i18nT } from '@/lib/i18n';
+import { Language } from '@/lib/i18n';
 
 I18nManager.forceRTL(true);
-
-const getThemeOptions = (lang: Language): { label: string; value: ThemeMode }[] => [
-  { label: lang === 'ar' ? 'فاتح' : 'Light', value: 'light' },
-  { label: lang === 'ar' ? 'داكن' : 'Dark', value: 'dark' },
-  { label: lang === 'ar' ? 'تلقائي حسب النظام' : 'Auto', value: 'system' },
-];
-
-const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
-  { label: 'العربية', value: 'ar' },
-  { label: 'English', value: 'en' },
-];
-
-
 
 export default function SettingsScreen() {
   const router = useRouter();
   const colors = useColors();
   const { settings, customDefaults, updatePrices, updateCurrency, resetToDefaults, saveCurrentAsDefaults } = useCalculator();
   const { themeMode, setThemeMode } = useThemeContext();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   const [redPrice, setRedPrice] = useState(String(settings.prices.red));
   const [whitePrice, setWhitePrice] = useState(String(settings.prices.white));
@@ -39,6 +26,17 @@ export default function SettingsScreen() {
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingDefaults, setIsSavingDefaults] = useState(false);
+
+  const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
+    { label: t('lightMode'), value: 'light' },
+    { label: t('darkMode'), value: 'dark' },
+    { label: t('autoSystem'), value: 'system' },
+  ];
+
+  const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
+    { label: t('arabic'), value: 'ar' },
+    { label: t('english'), value: 'en' },
+  ];
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -50,15 +48,15 @@ export default function SettingsScreen() {
       };
 
       await updatePrices(newPrices);
-      await updateCurrency(currency || 'جنيه مصري');
+      await updateCurrency(currency || t('egyptianPound'));
       await setThemeMode(selectedTheme);
       await setLanguage(selectedLanguage);
 
-      alert(selectedLanguage === 'ar' ? 'تم حفظ الإعدادات بنجاح' : 'Settings saved successfully');
+      Alert.alert(t('successTitle'), t('settingsSavedSuccess'));
       router.back();
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert(selectedLanguage === 'ar' ? 'حدث خطأ أثناء حفظ الإعدادات' : 'Error saving settings');
+      Alert.alert(t('errorTitle'), t('settingsSaveError'));
     } finally {
       setIsSaving(false);
     }
@@ -66,21 +64,21 @@ export default function SettingsScreen() {
 
   const handleRestoreDefaults = async () => {
     Alert.alert(
-      'استعادة القيم الافتراضية',
-      `هل أنت متأكد من رغبتك في استعادة القيم الافتراضية\n\n🔴 البيض الأحمر: ${customDefaults.red} جنيه\n⚪ البيض الأبيض: ${customDefaults.white} جنيه\n🟤 البيض البلدي: ${customDefaults.local} جنيه`,
+      t('restoreDefaultsBtn'),
+      `${t('restoreDefaultsConfirm')}\n\n🔴 ${t('redEgg')}: ${customDefaults.red} ${t('pound')}\n⚪ ${t('whiteEgg')}: ${customDefaults.white} ${t('pound')}\n🟤 ${t('localEgg')}: ${customDefaults.local} ${t('pound')}`,
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'استعادة',
+          text: t('reset'),
           style: 'destructive',
           onPress: async () => {
             setRedPrice(String(customDefaults.red));
             setWhitePrice(String(customDefaults.white));
             setLocalPrice(String(customDefaults.local));
-            setCurrency('جنيه مصري');
+            setCurrency(t('egyptianPound'));
             setSelectedTheme('system');
             await resetToDefaults();
-            alert('تم استعادة القيم الافتراضية بنجاح');
+            Alert.alert(t('successTitle'), t('defaultsRestoredSuccess'));
           },
         },
       ]
@@ -89,12 +87,12 @@ export default function SettingsScreen() {
 
   const handleSaveAsDefaults = async () => {
     Alert.alert(
-      'حفظ كأسعار افتراضية',
-      `هل الأسعار الحالية ستبقى القيم الافتراضية\n\n🔴 البيض الأحمر: ${redPrice} جنيه\n⚪ البيض الأبيض: ${whitePrice} جنيه\n🟤 البيض البلدي: ${localPrice} جنيه`,
+      t('saveAsDefaultsBtn'),
+      `${t('saveAsDefaultsConfirm')}\n\n🔴 ${t('redEgg')}: ${redPrice} ${t('pound')}\n⚪ ${t('whiteEgg')}: ${whitePrice} ${t('pound')}\n🟤 ${t('localEgg')}: ${localPrice} ${t('pound')}`,
       [
-        { text: 'إلغاء', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'حفظ',
+          text: t('save'),
           style: 'default',
           onPress: async () => {
             setIsSavingDefaults(true);
@@ -104,14 +102,12 @@ export default function SettingsScreen() {
                 white: Math.max(0, parseInt(whitePrice, 10) || 0),
                 local: Math.max(0, parseInt(localPrice, 10) || 0),
               };
-              // First, save the prices to current prices
               await updatePrices(newPrices);
-              // Then, save them as defaults
               await saveCurrentAsDefaults();
-              alert('تم حفظ الأسعار الحالية كأسعار افتراضية بنجاح');
+              Alert.alert(t('successTitle'), t('pricesSavedAsDefaultsSuccess'));
             } catch (error) {
               console.error('Error saving defaults:', error);
-              alert('حدث خطأ أثناء حفظ الأسعار');
+              Alert.alert(t('errorTitle'), t('pricesSaveError'));
             } finally {
               setIsSavingDefaults(false);
             }
@@ -133,17 +129,17 @@ export default function SettingsScreen() {
             >
               <Text className="text-2xl">←</Text>
             </Pressable>
-            <Text className="text-2xl font-bold text-foreground">{i18nT('appSettings', language)}</Text>
+            <Text className="text-2xl font-bold text-foreground">{t('settings')}</Text>
             <View className="w-8" />
           </View>
 
           {/* Prices Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">{i18nT('cartonPrices', language)}</Text>
+            <Text className="text-lg font-bold text-foreground">{t('cartonPrices')}</Text>
 
             {/* Red Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">🔴 {i18nT('redEggPrice', language)}</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">{t('redEggPriceLabel')}</Text>
               <TextInput
                 value={redPrice}
                 onChangeText={setRedPrice}
@@ -159,14 +155,14 @@ export default function SettingsScreen() {
                   fontSize: 16,
                   color: colors.foreground,
                   backgroundColor: colors.surface,
-                  textAlign: 'right',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}
               />
             </View>
 
             {/* White Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">⚪ {i18nT('whiteEggPrice', language)}</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">{t('whiteEggPriceLabel')}</Text>
               <TextInput
                 value={whitePrice}
                 onChangeText={setWhitePrice}
@@ -182,14 +178,14 @@ export default function SettingsScreen() {
                   fontSize: 16,
                   color: colors.foreground,
                   backgroundColor: colors.surface,
-                  textAlign: 'right',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}
               />
             </View>
 
             {/* Local Egg Price */}
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">🟤 {i18nT('localEggPrice', language)}</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">{t('localEggPriceLabel')}</Text>
               <TextInput
                 value={localPrice}
                 onChangeText={setLocalPrice}
@@ -205,7 +201,7 @@ export default function SettingsScreen() {
                   fontSize: 16,
                   color: colors.foreground,
                   backgroundColor: colors.surface,
-                  textAlign: 'right',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}
               />
             </View>
@@ -213,13 +209,13 @@ export default function SettingsScreen() {
 
           {/* Currency Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">{i18nT('currency', language)}</Text>
+            <Text className="text-lg font-bold text-foreground">{t('currency')}</Text>
             <View>
-              <Text className="text-sm font-semibold text-muted mb-1">{i18nT('currencyName', language)}</Text>
+              <Text className="text-sm font-semibold text-muted mb-1">{t('currencyName')}</Text>
               <TextInput
                 value={currency}
                 onChangeText={setCurrency}
-                placeholder="جنيه مصري"
+                placeholder={t('currencyPlaceholder')}
                 placeholderTextColor={colors.muted}
                 style={{
                   borderWidth: 1,
@@ -230,7 +226,7 @@ export default function SettingsScreen() {
                   fontSize: 16,
                   color: colors.foreground,
                   backgroundColor: colors.surface,
-                  textAlign: 'right',
+                  textAlign: language === 'ar' ? 'right' : 'left',
                 }}
               />
             </View>
@@ -238,7 +234,7 @@ export default function SettingsScreen() {
 
           {/* Language Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">{i18nT('language', language)}</Text>
+            <Text className="text-lg font-bold text-foreground">{t('language')}</Text>
             <View className="gap-2">
               {LANGUAGE_OPTIONS.map((option) => (
                 <Pressable
@@ -283,7 +279,15 @@ export default function SettingsScreen() {
                       />
                     )}
                   </View>
-                  <Text className="text-base font-semibold text-foreground">{option.label}</Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: selectedLanguage === option.value ? 'bold' : 'normal',
+                      color: colors.foreground,
+                    }}
+                  >
+                    {option.label}
+                  </Text>
                 </Pressable>
               ))}
             </View>
@@ -291,9 +295,9 @@ export default function SettingsScreen() {
 
           {/* Theme Section */}
           <View className="gap-3">
-            <Text className="text-lg font-bold text-foreground">{i18nT('theme', language)}</Text>
+            <Text className="text-lg font-bold text-foreground">{t('theme')}</Text>
             <View className="gap-2">
-              {getThemeOptions(language).map((option) => (
+              {THEME_OPTIONS.map((option) => (
                 <Pressable
                   key={option.value}
                   onPress={() => setSelectedTheme(option.value)}
@@ -336,74 +340,86 @@ export default function SettingsScreen() {
                       />
                     )}
                   </View>
-                  <Text className="text-base font-semibold text-foreground">{option.label}</Text>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: selectedTheme === option.value ? 'bold' : 'normal',
+                      color: colors.foreground,
+                    }}
+                  >
+                    {option.label}
+                  </Text>
                 </Pressable>
               ))}
             </View>
           </View>
 
           {/* Default Values Info */}
-          <View className="bg-surface rounded-lg p-3 border border-border">
-            <Text className="text-sm font-bold text-foreground mb-2">📋 {i18nT('defaultPrices', language)}</Text>
+          <View className="mt-4 p-4 rounded-lg" style={{ backgroundColor: colors.surface }}>
+            <Text className="text-sm font-bold text-foreground mb-2">{t('currentDefaultValues')}</Text>
             <View className="gap-1">
-              <Text className="text-xs text-muted">🔴 البيض الأحمر: {customDefaults.red} جنيه</Text>
-              <Text className="text-xs text-muted">⚪ البيض الأبيض: {customDefaults.white} جنيه</Text>
-              <Text className="text-xs text-muted">🟤 البيض البلدي: {customDefaults.local} جنيه</Text>
+              <Text className="text-xs text-muted">🔴 {t('redEgg')}: {customDefaults.red} {t('pound')}</Text>
+              <Text className="text-xs text-muted">⚪ {t('whiteEgg')}: {customDefaults.white} {t('pound')}</Text>
+              <Text className="text-xs text-muted">🟤 {t('localEgg')}: {customDefaults.local} {t('pound')}</Text>
             </View>
           </View>
 
           {/* Action Buttons */}
-          <View className="gap-2 mt-4">
-            {/* Save Button */}
+          <View className="gap-3 mt-4 mb-8">
             <Pressable
               onPress={handleSave}
               disabled={isSaving}
               style={({ pressed }) => [
                 {
                   backgroundColor: colors.primary,
+                  paddingVertical: 14,
                   borderRadius: 8,
-                  paddingVertical: 12,
-                  opacity: pressed || isSaving ? 0.7 : 1,
+                  alignItems: 'center',
+                  opacity: pressed || isSaving ? 0.8 : 1,
                 },
               ]}
             >
-              <Text className="text-base font-bold text-white text-center">
-                {isSaving ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? '✓ حفظ الإعدادات' : '✓ Save Settings')}
+              <Text style={{ color: colors.background, fontSize: 16, fontWeight: 'bold' }}>
+                {isSaving ? t('saving') : t('saveSettingsBtn')}
               </Text>
             </Pressable>
 
-            {/* Save as Defaults Button */}
             <Pressable
               onPress={handleSaveAsDefaults}
               disabled={isSavingDefaults}
               style={({ pressed }) => [
                 {
-                  backgroundColor: '#8B5CF6',
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                  paddingVertical: 14,
                   borderRadius: 8,
-                  paddingVertical: 12,
-                  opacity: pressed || isSavingDefaults ? 0.7 : 1,
+                  alignItems: 'center',
+                  opacity: pressed || isSavingDefaults ? 0.8 : 1,
                 },
               ]}
             >
-              <Text className="text-base font-semibold text-white text-center">
-                {isSavingDefaults ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? '📋 حفظ كأسعار افتراضية' : '📋 Save as Defaults')}
+              <Text style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>
+                {isSavingDefaults ? t('saving') : t('saveAsDefaultsBtn')}
               </Text>
             </Pressable>
 
-            {/* Restore Defaults Button */}
             <Pressable
               onPress={handleRestoreDefaults}
               style={({ pressed }) => [
                 {
-                  backgroundColor: '#EF4444',
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: '#EF4444',
+                  paddingVertical: 14,
                   borderRadius: 8,
-                  paddingVertical: 12,
-                  opacity: pressed ? 0.7 : 1,
+                  alignItems: 'center',
+                  opacity: pressed ? 0.8 : 1,
                 },
               ]}
             >
-              <Text className="text-base font-semibold text-white text-center">
-                {language === 'ar' ? '⚠️ استعادة القيم الافتراضية' : '⚠️ Restore Defaults'}
+              <Text style={{ color: '#EF4444', fontSize: 16, fontWeight: 'bold' }}>
+                {t('restoreDefaultsBtn')}
               </Text>
             </Pressable>
           </View>
