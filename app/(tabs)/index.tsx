@@ -2,9 +2,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView, I18nManager, useWindowDi
 import { useEffect, useRef, useState } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
-import { useThemeContext } from '@/lib/theme-provider';
 import { useColors } from '@/hooks/use-colors';
-import { cn } from '@/lib/utils';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 
@@ -84,10 +82,7 @@ const EGG_TYPES = [
 export default function HomeScreen() {
   const router = useRouter();
   const colors = useColors();
-  const { themeMode } = useThemeContext();
-  const { width, height } = useWindowDimensions();
-  const isSmallScreen = width < 380;
-  const isMediumScreen = width < 480;
+  const { width } = useWindowDimensions();
   const sizes = getResponsiveSizes(width);
   const eggCountFieldRef = useRef<View>(null);
   const [showCart, setShowCart] = useState(false);
@@ -142,7 +137,7 @@ export default function HomeScreen() {
 
   // Calculate cart totals
   const cartTotal = state.cart.reduce((sum, item) => sum + (item.quantity * (item.price / 30)), 0);
-  const cartTotalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+
   
   // Calculate change for cart view
   const cartAmountPaidNum = parseFloat(cartAmountPaid) || 0;

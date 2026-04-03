@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View, Pressable, StyleSheet, Dimensions } from 'react-native';
+import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
@@ -53,32 +53,34 @@ export default function AnalyticsPageScreen() {
     ];
   }, [language]);
 
+  const loadAnalytics = React.useCallback(async () => {
+    const records = await getPricesByPeriod(selectedPeriod);
+    const priceStats = await calculateStats(selectedEggType, selectedPeriod);
+    setPriceRecords(records);
+    setStats(priceStats);
+  }, [selectedPeriod, selectedEggType]);
+
   // Load analytics data when component mounts or period changes
   useEffect(() => {
     loadAnalytics();
-  }, [selectedPeriod, selectedEggType]);
+  }, [loadAnalytics]);
 
   // Refresh analytics whenever the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       loadAnalytics();
-    }, [selectedPeriod, selectedEggType])
+    }, [loadAnalytics])
   );
 
-  const loadAnalytics = async () => {
-    const records = await getPricesByPeriod(selectedPeriod);
-    const priceStats = await calculateStats(selectedEggType, selectedPeriod);
-    setPriceRecords(records);
-    setStats(priceStats);
-  };
 
-  const getMaxPrice = () => {
+
+  const getMaxPrice = React.useCallback(() => {
     if (priceRecords.length === 0) return 100;
     const prices = priceRecords.map(r => r.prices[selectedEggType]);
     return Math.max(...prices) * 1.1; // Add 10% padding
-  };
+  }, [priceRecords, selectedEggType]);
 
-  const renderChart = () => {
+  const renderChart = React.useCallback(() => {
     if (priceRecords.length === 0) {
       return (
         <View style={[styles.chartContainer, { backgroundColor: colors.surface }]}>
@@ -89,7 +91,6 @@ export default function AnalyticsPageScreen() {
 
     const maxPrice = getMaxPrice();
     const chartHeight = 200;
-    const barWidth = Math.max(20, (Dimensions.get('window').width - 60) / priceRecords.length);
 
     return (
       <View style={[styles.chartContainer, { backgroundColor: colors.surface }]}>
@@ -122,7 +123,7 @@ export default function AnalyticsPageScreen() {
         </View>
       </View>
     );
-  };
+  }, [priceRecords, selectedEggType, colors, getMaxPrice]);
 
   return (
     <ScreenContainer className="flex-1 px-4 py-4" edges={['top', 'left', 'right']}>

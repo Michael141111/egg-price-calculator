@@ -1,6 +1,6 @@
 import { ScrollView, Text, View, Pressable, TextInput, I18nManager, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ScreenContainer } from '@/components/screen-container';
 import { useCalculator } from '@/lib/calculator-context';
 import { useThemeContext, type ThemeMode } from '@/lib/theme-provider';
@@ -17,12 +17,7 @@ const THEME_OPTIONS: { label: string; value: ThemeMode }[] = [
   { label: 'تلقائي حسب النظام', value: 'system' },
 ];
 
-// Note: These are just for display. Actual defaults are loaded from customDefaults
-const DEFAULT_PRICES = {
-  red: 90,
-  white: 99,
-  local: 150,
-};
+
 
 const LANGUAGE_OPTIONS: { label: string; value: Language }[] = [
   { label: 'العربية', value: 'ar' },

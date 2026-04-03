@@ -3,7 +3,6 @@ import { ScrollView, Text, View, Pressable, TextInput, StyleSheet, Alert, I18nMa
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { useColors } from '@/hooks/use-colors';
-import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities, saveFavoriteQuantities, getDefaultFavoriteQuantities } from '@/lib/storage';
 
 I18nManager.forceRTL(true);
