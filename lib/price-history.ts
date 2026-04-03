@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface PriceRecord {
-  date: string; // ISO date string
+  date: string; // ISO date string (YYYY-MM-DD)
   timestamp: number; // Unix timestamp
   prices: {
     red: number;
@@ -26,15 +26,16 @@ const MAX_HISTORY_RECORDS = 365 * 2; // Keep 2 years of data
 export async function savePriceToHistory(prices: { red: number; white: number; local: number }): Promise<void> {
   try {
     const history = await getPriceHistory();
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
 
     // Check if we already have a record for today
     const existingIndex = history.findIndex(record => record.date === today);
 
     const newRecord: PriceRecord = {
       date: today,
-      timestamp: Date.now(),
-      prices,
+      timestamp: now.getTime(),
+      prices: { ...prices },
     };
 
     if (existingIndex >= 0) {
@@ -44,6 +45,9 @@ export async function savePriceToHistory(prices: { red: number; white: number; l
       // Add new record
       history.push(newRecord);
     }
+
+    // Sort history by date to ensure chronological order
+    history.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     // Keep only the most recent records
     if (history.length > MAX_HISTORY_RECORDS) {
@@ -62,7 +66,8 @@ export async function savePriceToHistory(prices: { red: number; white: number; l
 export async function getPriceHistory(): Promise<PriceRecord[]> {
   try {
     const data = await AsyncStorage.getItem(PRICE_HISTORY_KEY);
-    return data ? JSON.parse(data) : [];
+    const history: PriceRecord[] = data ? JSON.parse(data) : [];
+    return history;
   } catch (error) {
     console.error('Failed to get price history:', error);
     return [];
@@ -76,25 +81,33 @@ export async function getPricesByPeriod(
   period: 'daily' | 'weekly' | 'monthly' | 'yearly'
 ): Promise<PriceRecord[]> {
   const history = await getPriceHistory();
+  if (history.length === 0) return [];
+
   const now = new Date();
   let startDate: Date;
 
   switch (period) {
     case 'daily':
-      startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 1);
       break;
     case 'weekly':
-      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 7);
       break;
     case 'monthly':
-      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      startDate = new Date(now);
+      startDate.setMonth(now.getMonth() - 1);
       break;
     case 'yearly':
-      startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      startDate = new Date(now);
+      startDate.setFullYear(now.getFullYear() - 1);
       break;
+    default:
+      startDate = new Date(0);
   }
 
-  return history.filter(record => new Date(record.date) >= startDate);
+  return history.filter(record => new Date(record.date).getTime() >= startDate.getTime());
 }
 
 /**
@@ -115,7 +128,17 @@ export async function calculateStats(
     };
   }
 
-  const prices = records.map(record => record.prices[eggType]);
+  const prices = records.map(record => record.prices[eggType]).filter(p => p > 0);
+  
+  if (prices.length === 0) {
+    return {
+      highest: 0,
+      lowest: 0,
+      average: 0,
+      count: 0,
+    };
+  }
+
   const highest = Math.max(...prices);
   const lowest = Math.min(...prices);
   const average = prices.reduce((a, b) => a + b, 0) / prices.length;
