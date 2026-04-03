@@ -17,6 +17,17 @@ export const translations = {
     total: 'الإجمالي',
     clear: 'مسح',
     remainder: 'الباقي',
+    remainingForCustomer: 'المتبقي على العميل',
+    paidAmount: 'المبلغ المدفوع',
+    cartTitle: 'قائمة المشتريات',
+    quantityLabel: 'الكمية:',
+    priceLabel: 'السعر:',
+    clearAll: 'مسح الكل',
+    addProduct: 'إضافة منتج',
+    pricePerEggLabel: 'سعر البيضة',
+    cartonPriceLabel: 'سعر الكرتونة',
+    requiredAmount: 'المبلغ المطلوب',
+    eggCountLabel: 'عدد البيضات',
 
     // Egg types
     redEgg: 'بيض أحمر',
@@ -32,6 +43,7 @@ export const translations = {
     favoriteQuantities: 'الكميات المفضلة',
     favoritesSettings: 'إعدادات المفضلات',
     priceList: 'قائمة الأسعار',
+    count: 'العدد',
 
     // Settings
     appSettings: 'إعدادات التطبيق',
@@ -41,10 +53,22 @@ export const translations = {
     lightMode: 'الوضع الفاتح',
     darkMode: 'الوضع الداكن',
     auto: 'تلقائي',
+    autoSystem: 'تلقائي حسب النظام',
     save: 'حفظ',
     reset: 'إعادة تعيين',
     export: 'تصدير',
     import: 'استيراد',
+    arabic: 'العربية',
+    english: 'الإنجليزية',
+    currencyPlaceholder: 'جنيه مصري',
+    currentDefaultValues: 'القيم الافتراضية الحالية:',
+    redEggPriceLabel: '🔴 سعر كرتونة البيض الأحمر',
+    whiteEggPriceLabel: '⚪ سعر كرتونة البيض الأبيض',
+    localEggPriceLabel: '🟤 سعر كرتونة البيض البلدي',
+    saving: 'جاري الحفظ...',
+    saveSettingsBtn: '✓ حفظ الإعدادات',
+    saveAsDefaultsBtn: '📋 حفظ كأسعار افتراضية',
+    restoreDefaultsBtn: '⚠️ استعادة القيم الافتراضية',
 
     // Analytics
     priceAnalytics: 'تحليل الأسعار',
@@ -70,6 +94,21 @@ export const translations = {
     loading: 'جاري التحميل...',
     noFavorites: 'لا توجد أسعار مفضلة',
     addFavoritesMessage: 'أضف كميات مفضلة لتتبع أسعارها',
+    alertTitle: 'تنبيه',
+    errorTitle: 'خطأ',
+    successTitle: 'نجح',
+    confirmTitle: 'تأكيد',
+    minQuantityAlert: 'يجب أن يكون هناك عدد واحد على الأقل',
+    invalidQuantityError: 'يرجى إدخال أعداد صحيحة موجبة',
+    settingsSavedSuccess: 'تم حفظ الإعدادات بنجاح',
+    settingsSaveError: 'حدث خطأ أثناء حفظ الإعدادات',
+    restoreDefaultsConfirm: 'هل أنت متأكد من رغبتك في استعادة القيم الافتراضية',
+    saveAsDefaultsConfirm: 'هل الأسعار الحالية ستبقى القيم الافتراضية',
+    defaultsRestoredSuccess: 'تم استعادة القيم الافتراضية بنجاح',
+    pricesSavedAsDefaultsSuccess: 'تم حفظ الأسعار الحالية كأسعار افتراضية بنجاح',
+    pricesSaveError: 'حدث خطأ أثناء حفظ الأسعار',
+    resetFavoritesConfirm: 'هل تريد إعادة تعيين الأعداد المفضلة إلى القيم الافتراضية؟',
+    favoritesResetSuccess: 'تم إعادة تعيين الأعداد المفضلة',
 
     // Additional strings for main page
     enterQuantity: 'أدخل الكمية',
@@ -113,6 +152,10 @@ export const translations = {
     quantityAdded: 'تمت إضافة الكمية بنجاح',
     quantityRemoved: 'تمت إزالة الكمية بنجاح',
     quantityUpdated: 'تم تحديث الكمية بنجاح',
+    favoriteCountsSettings: 'إعدادات الأعداد المفضلة',
+    favoriteCountsLabel: 'الأعداد المفضلة:',
+    enterCountPlaceholder: 'أدخل العدد',
+    addCountBtn: '+ إضافة عدد',
 
     // Analytics page
     statistics: 'الإحصائيات',
@@ -121,6 +164,7 @@ export const translations = {
     selectDateRange: 'اختر نطاق التاريخ',
     from: 'من',
     to: 'إلى',
+    pound: 'جنيه',
   },
   en: {
     // App title and navigation
@@ -137,6 +181,17 @@ export const translations = {
     total: 'Total',
     clear: 'Clear',
     remainder: 'Remainder',
+    remainingForCustomer: 'Remaining for Customer',
+    paidAmount: 'Paid Amount',
+    cartTitle: 'Shopping List',
+    quantityLabel: 'Quantity:',
+    priceLabel: 'Price:',
+    clearAll: 'Clear All',
+    addProduct: 'Add Product',
+    pricePerEggLabel: 'Price per Egg',
+    cartonPriceLabel: 'Carton Price',
+    requiredAmount: 'Required Amount',
+    eggCountLabel: 'Egg Count',
 
     // Egg types
     redEgg: 'Red Eggs',
@@ -152,6 +207,7 @@ export const translations = {
     favoriteQuantities: 'Favorite Quantities',
     favoritesSettings: 'Favorites Settings',
     priceList: 'Price List',
+    count: 'Count',
 
     // Settings
     appSettings: 'App Settings',
@@ -161,10 +217,22 @@ export const translations = {
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
     auto: 'Auto',
+    autoSystem: 'System Default',
     save: 'Save',
     reset: 'Reset',
     export: 'Export',
     import: 'Import',
+    arabic: 'Arabic',
+    english: 'English',
+    currencyPlaceholder: 'EGP',
+    currentDefaultValues: 'Current Default Values:',
+    redEggPriceLabel: '🔴 Red Egg Carton Price',
+    whiteEggPriceLabel: '⚪ White Egg Carton Price',
+    localEggPriceLabel: '🟤 Local Egg Carton Price',
+    saving: 'Saving...',
+    saveSettingsBtn: '✓ Save Settings',
+    saveAsDefaultsBtn: '📋 Save as Defaults',
+    restoreDefaultsBtn: '⚠️ Restore Defaults',
 
     // Analytics
     priceAnalytics: 'Price Analytics',
@@ -190,6 +258,21 @@ export const translations = {
     loading: 'Loading...',
     noFavorites: 'No favorite prices',
     addFavoritesMessage: 'Add favorite quantities to track their prices',
+    alertTitle: 'Alert',
+    errorTitle: 'Error',
+    successTitle: 'Success',
+    confirmTitle: 'Confirm',
+    minQuantityAlert: 'There must be at least one quantity',
+    invalidQuantityError: 'Please enter positive integers',
+    settingsSavedSuccess: 'Settings saved successfully',
+    settingsSaveError: 'Error saving settings',
+    restoreDefaultsConfirm: 'Are you sure you want to restore default values?',
+    saveAsDefaultsConfirm: 'Should current prices become the defaults?',
+    defaultsRestoredSuccess: 'Default values restored successfully',
+    pricesSavedAsDefaultsSuccess: 'Current prices saved as defaults successfully',
+    pricesSaveError: 'Error saving prices',
+    resetFavoritesConfirm: 'Do you want to reset favorite quantities to defaults?',
+    favoritesResetSuccess: 'Favorite quantities reset successfully',
 
     // Additional strings for main page
     enterQuantity: 'Enter quantity',
@@ -233,6 +316,10 @@ export const translations = {
     quantityAdded: 'Quantity added successfully',
     quantityRemoved: 'Quantity removed successfully',
     quantityUpdated: 'Quantity updated successfully',
+    favoriteCountsSettings: 'Favorite Counts Settings',
+    favoriteCountsLabel: 'Favorite Counts:',
+    enterCountPlaceholder: 'Enter count',
+    addCountBtn: '+ Add Count',
 
     // Analytics page
     statistics: 'Statistics',
@@ -241,6 +328,7 @@ export const translations = {
     selectDateRange: 'Select date range',
     from: 'From',
     to: 'To',
+    pound: 'EGP',
   },
 };
 
