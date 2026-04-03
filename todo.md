@@ -268,3 +268,19 @@
 - [x] اعدادات اللغة لم تظهر في صفحة الإعدادات (Fixed: Added missing imports in settings.tsx)
 - [x] التطبيق يتعطل عند الضغط على ايقونة صفحة الأسعار المفضلة (Fixed: Corrected useLanguage destructuring in favorites-page.tsx)
 - [x] التطبيق يتعطل عند الضغط على ايقونة صفحة التحليلات والرسوم البيانية (Fixed: Corrected useLanguage destructuring and added missing imports in analytics-page.tsx)
+
+
+## Current Issues - April 2, 2026
+
+### Issue 1: Incomplete English Translation
+- [x] Audit all screen files to ensure they use useLanguage() hook properly
+- [x] Update index.tsx to use translations for all hardcoded strings
+- [x] Update favorites-page.tsx to use translations for all hardcoded strings
+- [x] Update analytics-page.tsx to use translations for all hardcoded strings
+- [x] Update settings.tsx to use translations for all hardcoded strings
+
+### Issue 2: Price History Not Being Saved
+- [x] Integrate savePriceToHistory() into calculator-context.tsx when prices are updated
+- [x] Integrate savePriceToHistory() into settings.tsx when prices are saved (already working)
+- [x] Test that analytics page displays real price data after saving prices
+- [x] Verify charts show data correctly after adding price records (CONFIRMED: Charts now display data!)

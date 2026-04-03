@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { CalculatorState, Prices, AppSettings } from './types';
 import { loadSettings, savePrices, saveCurrency, loadCustomDefaults, saveCustomDefaults } from './storage';
+import { savePriceToHistory } from './price-history';
 
 interface CalculatorContextType {
   state: CalculatorState;
@@ -231,6 +232,8 @@ export function CalculatorProvider({ children }: { children: React.ReactNode }) 
       prices,
     }));
     await savePrices(prices);
+    // Save prices to history for analytics
+    await savePriceToHistory(prices);
   };
 
   const updateCurrency = async (currency: string) => {
