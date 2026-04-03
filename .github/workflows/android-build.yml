@@ -1,7 +1,7 @@
 name: Android Build (APK & AAB)
 on:
   push:
-    branches: [ main ] # سيتم البناء عند الرفع على فرع main
+    branches: [ main ]
 
 jobs:
   build:
@@ -25,25 +25,30 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build APK
+      # خطوة مهمة جداً لمشاريع Expo لإنشاء ملفات Android الأصلية
+      - name: Prebuild Android
+        run: npx expo prebuild --platform android
+
+      - name: Build APK (Release)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --no-daemon
 
       - name: Build AAB (App Bundle)
         run: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          # ملاحظة: تأكد من أن المسار يطابق مخرجات مشروعك
+          path: android/app/build/outputs/apk/release/*.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          path: android/app/build/outputs/bundle/release/*.aab
