@@ -212,7 +212,7 @@ export default function HomeScreen() {
               {EGG_TYPES.map((egg) => (
                 <Pressable
                   key={egg.id}
-                  onPress={() => selectEgg(egg.id)}
+                  onPress={() => selectEgg(egg.id as 'red' | 'white' | 'local')}
                   style={[styles.eggCard, { backgroundColor: state.selectedEgg === egg.id ? colors.primary : colors.surface, borderColor: colors.border }]}
                 >
                   <Image source={egg.image} style={styles.eggImage} contentFit="contain" />
@@ -247,7 +247,7 @@ export default function HomeScreen() {
                 </View>
 
                 <View style={styles.priceInfoRow}>
-                  <Pressable onPress={() => addToCart(parseInt(state.eggCount, 10) || 0, cartonPrice)} style={[styles.addBtn, { backgroundColor: colors.primary }]}><Text style={styles.addBtnText}>{t('addProduct')}</Text></Pressable>
+                  <Pressable onPress={() => addToCart()} style={[styles.addBtn, { backgroundColor: colors.primary }]}><Text style={styles.addBtnText}>{t('addProduct')}</Text></Pressable>
                   <View style={styles.priceItem}><Text style={styles.priceLabel}>{t('cartonPriceLabel')}</Text><Text style={[styles.priceValue, { color: colors.foreground }]}>{cartonPrice.toFixed(2)}</Text></View>
                   <View style={styles.priceItem}><Text style={styles.priceLabel}>{t('pricePerEggLabel')}</Text><Text style={[styles.priceValue, { color: colors.foreground }]}>{eggPrice.toFixed(2)}</Text></View>
                 </View>
@@ -272,7 +272,7 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              <View style={[styles.keypad, { gap: sizes.keyGap }]}>
+              <View style={[styles.keypad, { gap: sizes.keypadGap }]}>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0].map((num) => (
                   <Pressable key={num} onPress={() => { if (showCart) { setCartAmountPaid(prev => prev + num); } else { addDigit(String(num)); } }} style={[styles.keypadBtn, { backgroundColor: colors.surface, borderColor: colors.border, height: sizes.keypadBtnHeight }]}><Text style={[styles.keypadText, { color: colors.foreground, fontSize: sizes.keypadBtnFontSize }]}>{num}</Text></Pressable>
                 ))}

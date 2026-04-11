@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
 import { useColors } from '@/hooks/use-colors';
 import { useCalculator } from '@/lib/calculator-context';
+import { useLanguage } from '@/lib/language-context';
 import { FavoriteQuantities } from '@/lib/types';
 import { loadFavoriteQuantities } from '@/lib/storage';
 
-const EGG_TYPES = [
-  { id: 'red', label: 'بيض أحمر', color: '#EF4444' },
-  { id: 'white', label: 'بيض أبيض', color: '#E5E7EB' },
-  { id: 'local', label: 'بيض بلدي', color: '#D4A574' },
+const getEggTypes = (language: 'ar' | 'en') => [
+  { id: 'red', label: language === 'ar' ? 'بيض أحمر' : 'Red Eggs', color: '#EF4444' },
+  { id: 'white', label: language === 'ar' ? 'بيض أبيض' : 'White Eggs', color: '#E5E7EB' },
+  { id: 'local', label: language === 'ar' ? 'بيض بلدي' : 'Local Eggs', color: '#D4A574' },
 ];
 
 interface FavoritesScreenProps {
@@ -18,6 +19,7 @@ interface FavoritesScreenProps {
 export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
   const colors = useColors();
   const { settings } = useCalculator();
+  const { language } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteQuantities>({ quantities: [1, 5, 10, 15, 30] });
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
         <Pressable onPress={onClose} style={styles.closeBtn}>
           <Text style={[styles.closeBtnText, { color: colors.primary }]}>✕</Text>
         </Pressable>
-        <Text style={[styles.headerTitle, { color: colors.foreground }]}>الأسعار المفضلة</Text>
+        <Text style={[styles.headerTitle, { color: colors.foreground }]}>{language === 'ar' ? 'الأسعار المفضلة' : 'Favorite Prices'}</Text>
         <Pressable style={styles.settingsBtn}>
           <Text style={[styles.settingsBtnText, { color: colors.primary }]}>⚙️</Text>
         </Pressable>
@@ -44,8 +46,8 @@ export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Table Header */}
         <View style={[styles.tableHeader, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>العدد</Text>
-          {EGG_TYPES.map((type) => (
+          <Text style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>{language === 'ar' ? 'العدد' : 'Quantity'}</Text>
+          {getEggTypes(language).map((type) => (
             <Text key={type.id} style={[styles.headerCell, { color: colors.foreground, flex: 1 }]}>
               {type.label}
             </Text>
@@ -65,7 +67,7 @@ export default function FavoritesScreen({ onClose }: FavoritesScreenProps) {
             ]}
           >
             <Text style={[styles.cell, { color: colors.foreground, flex: 1 }]}>{quantity}</Text>
-            {EGG_TYPES.map((type) => (
+            {getEggTypes(language).map((type) => (
               <Text key={type.id} style={[styles.cell, { color: colors.foreground, flex: 1 }]}>
                 {calculatePrice(quantity, type.id as 'red' | 'white' | 'local')}
               </Text>
